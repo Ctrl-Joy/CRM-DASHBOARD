@@ -2,22 +2,33 @@
   "name": "nimbus-crm",
   "version": "1.0.0",
   "private": true,
-  "description": "Nimbus CRM: React + TypeScript frontend, Express + Prisma backend.",
-  "workspaces": ["shared", "server", "web"],
-  "engines": { "node": ">=20.11" },
+  "description": "Nexora CRM: React + TypeScript frontend, Express + Prisma + PostgreSQL backend.",
+  "workspaces": [
+    "shared",
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
     "setup": "npm install && node scripts/setup-env.mjs && npm run db:deploy",
-    "db:deploy": "npm run db:deploy -w server",
-    "dev": "concurrently -k -n server,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
+    "db:deploy": "node scripts/with-db.mjs npm run db:deploy -w server",
+    "dev": "node scripts/with-db.mjs npm run dev:app",
+    "dev:app": "npm run db:deploy -w server && concurrently -k -n server,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
     "build": "npm run build -w web",
     "start": "npm run start -w server",
-    "db:migrate": "npm run db:migrate -w server",
-    "db:reset": "npm run db:reset -w server",
-    "seed": "npm run seed -w server",
+    "db:migrate": "node scripts/with-db.mjs npm run db:migrate -w server",
+    "db:reset": "node scripts/with-db.mjs npm run db:reset -w server",
+    "seed": "node scripts/with-db.mjs npm run seed -w server",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w web",
     "test": "npm test -w server"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "embedded-postgres": "17.10.0-beta.17"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
   }
 }

@@ -28,8 +28,7 @@ export function buildListQuery(req: Request, scope: Record<string, unknown>, cfg
   const q = req.query;
   const and: Record<string, unknown>[] = [scope];
   const search = str(q.q)?.trim();
-  // SQLite LIKE is case-insensitive for ASCII; on Postgres add mode: 'insensitive'.
-  if (search) and.push({ OR: cfg.searchFields.map((f) => nest(f, { contains: search })) });
+  if (search) and.push({ OR: cfg.searchFields.map((f) => nest(f, { contains: search, mode: 'insensitive' })) });
 
   for (const [field, kind] of Object.entries(cfg.filters ?? {})) {
     if (kind === 'date' || kind === 'number') {

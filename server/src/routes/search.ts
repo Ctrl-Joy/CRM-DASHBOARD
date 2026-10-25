@@ -15,14 +15,16 @@ searchRouter.get('/', handler(async (req) => {
   if (!q || q.length < 2) return { data: [] };
   const user = me(req);
   const [own, assign] = await Promise.all([scopeWhere(user, 'ownerId'), scopeWhere(user, 'assigneeId')]);
-  const c = { contains: q };
+  const c = { contains: q, mode: 'insensitive' as const };
   const take = 5;
+  const ticketNo = Number(q);
+  const isTicketNo = Number.isInteger(ticketNo) && ticketNo > 0 && ticketNo <= 2_147_483_647; // Postgres INT range
   const [contacts, companies, leads, deals, tickets, tasks] = await Promise.all([
     prisma.contact.findMany({ where: { AND: [own, { OR: [{ firstName: c }, { lastName: c }, { email: c }, { phone: c }] }] }, take, include: { company: { select: { name: true } } } }),
     prisma.company.findMany({ where: { AND: [own, { OR: [{ name: c }, { domain: c }] }] }, take }),
     prisma.lead.findMany({ where: { AND: [own, { convertedAt: null, OR: [{ firstName: c }, { lastName: c }, { email: c }, { companyName: c }] }] }, take }),
     prisma.deal.findMany({ where: { AND: [own, { title: c }] }, take, include: { stage: { select: { name: true } } } }),
-    prisma.ticket.findMany({ where: { AND: [assign, { OR: [{ subject: c }, ...(Number.isInteger(Number(q)) ? [{ number: Number(q) }] : [])] }] }, take }),
+    prisma.ticket.findMany({ where: { AND: [assign, { OR: [{ subject: c }, ...(isTicketNo ? [{ number: ticketNo }] : [])] }] }, take }),
     prisma.task.findMany({ where: { AND: [assign, { title: c, status: { not: 'done' } }] }, take }),
   ]);
   const data: SearchResult[] = [

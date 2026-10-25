@@ -202,3 +202,13 @@ describe('live demo sign-in', () => {
     await real.post('/api/users').set(H).send({ name: 'Y', email: email('y'), role: 'rep', password: 'temporary-pass' }).expect(201);
   });
 });
+
+describe('search', () => {
+  it('matches regardless of letter case', async () => {
+    const a = await signup();
+    await a.post('/api/contacts').set(H).send({ firstName: 'Priya', lastName: 'Shah', email: 'Priya.Shah@acme.test' }).expect(201);
+    expect((await a.get('/api/contacts?q=PRIYA').expect(200)).body.total).toBe(1);
+    expect((await a.get('/api/search?q=shah').expect(200)).body.data).toHaveLength(1);
+    await a.get('/api/search?q=99999999999').expect(200);
+  });
+});

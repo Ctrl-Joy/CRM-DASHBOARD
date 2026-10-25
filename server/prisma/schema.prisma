@@ -2,15 +2,15 @@
 //
 // Multi-tenant: every row carries orgId, and every query is scoped to the
 // signed-in user's organization (see src/lib/scope.ts). Enumerations are plain
-// strings validated by the zod schemas in @crm/shared, because SQLite has no
-// native enum type. Records soft-delete via deletedAt.
+// strings validated by the zod schemas in @crm/shared, so adding a value needs
+// no migration. Records soft-delete via deletedAt.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

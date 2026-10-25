@@ -1,5 +1,5 @@
-// Enumerations shared by the API and the UI. SQLite has no native enums, so
-// the database stores these as strings and zod enforces them at both ends.
+// Enumerations shared by the API and the UI. The database stores these as plain
+// strings and zod enforces them at both ends.
 
 export const ROLES = ['rep', 'manager', 'admin'] as const;
 export type Role = (typeof ROLES)[number];

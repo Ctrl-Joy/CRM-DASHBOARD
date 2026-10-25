@@ -1,12 +1,18 @@
 import { execSync } from 'child_process';
-import fs from 'fs';
+import EmbeddedPostgres from 'embedded-postgres';
 
-// Create the schema in the fresh temp database chosen by vitest.config.ts.
-export default function setup() {
-  const url = process.env.TEST_DATABASE_URL!;
-  execSync('npx prisma db push --skip-generate', { stdio: 'ignore', env: { ...process.env, DATABASE_URL: url } });
-  return () => {
-    const file = url.replace(/^file:/, '');
-    for (const f of [file, `${file}-journal`]) fs.rmSync(f, { force: true });
-  };
+// Start a throwaway PostgreSQL for this run and create the schema in it.
+export default async function setup() {
+  const port = Number(process.env.TEST_PG_PORT);
+  const pg = new EmbeddedPostgres({
+    databaseDir: process.env.TEST_PG_DIR!, port, user: 'postgres', password: 'postgres', persistent: false, onLog: () => {},
+  });
+  await pg.initialise();
+  await pg.start();
+  await pg.createDatabase('crm_test');
+  execSync('npx prisma db push --skip-generate', {
+    stdio: 'ignore',
+    env: { ...process.env, DATABASE_URL: `postgresql://postgres:postgres@localhost:${port}/crm_test` },
+  });
+  return () => pg.stop();
 }

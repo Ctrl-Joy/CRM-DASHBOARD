@@ -1,0 +1,21 @@
+# Render Blueprint: one free web service runs the API and serves the built website.
+# The database is PostgreSQL from Neon (free); paste its connection string as
+# DATABASE_URL when Render asks for it.
+services:
+  - type: web
+    name: nexora-crm
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run db:deploy && npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SECURE_COOKIES
+        value: "1"

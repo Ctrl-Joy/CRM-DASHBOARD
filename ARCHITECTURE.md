@@ -3,7 +3,7 @@
 ## Overview
 
 ```
-web (React SPA) ──/api──▶ server (Express) ──Prisma──▶ SQLite (Postgres-ready)
+web (React SPA) ──/api──▶ server (Express) ──Prisma──▶ PostgreSQL
         ▲                        │
         └──── shared (zod schemas · enums · RBAC · calculations) ────┘
 ```
@@ -31,7 +31,7 @@ web (React SPA) ──/api──▶ server (Express) ──Prisma──▶ SQLit
   - `Attachment`, `AuditLog` (field-level diffs), `Notification` and `SavedView`
   - `Workflow` → `WorkflowRun`, `EmailTemplate` and `Report` (saved builder configs with a schedule)
 
-SQLite has no native enums, so they are strings validated by zod. That keeps the move to Postgres a provider change.
+Enumerations are plain strings validated by zod rather than database enums, so adding a value needs no migration.
 
 ## Security and RBAC
 
