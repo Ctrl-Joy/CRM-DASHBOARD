@@ -7,6 +7,7 @@ import { clearSessionCookie, me, requireAuth, setSessionCookie, signToken } from
 import { badRequest, handler, HttpError, parse } from '../lib/http';
 import { audit } from '../lib/audit';
 import { createOrganization } from '../services/setup';
+import { assertNotDemo, DEMO_ACCOUNTS, demoLoginEnabled, demoOrgId, type DemoRole } from '../services/demo';
 
 export const authRouter = Router();
 const DUMMY_HASH = bcrypt.hashSync('timing-equaliser', 12);
@@ -57,6 +58,19 @@ authRouter.post('/login', limiter, handler(async (req, res) => {
   return { ok: true };
 }));
 
+authRouter.get('/demo', handler(async () => ({ available: demoLoginEnabled() && (await demoOrgId()) !== null })));
+
+authRouter.post('/demo', limiter, handler(async (req, res) => {
+  const role: DemoRole = req.body?.role in DEMO_ACCOUNTS ? req.body.role : 'admin';
+  const orgId = demoLoginEnabled() ? await demoOrgId() : null;
+  const user = orgId && await prisma.user.findFirst({ where: { orgId, email: DEMO_ACCOUNTS[role], active: true, deletedAt: null } });
+  if (!user) throw new HttpError(404, 'The live demo isn’t available right now.');
+  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  setSessionCookie(res, signToken(user));
+  await audit({ user: { id: user.id, orgId: user.orgId }, ip: req.ip }, 'login', 'user', user.id, { demo: true });
+  return { ok: true };
+}));
+
 authRouter.post('/logout', (_req, res) => {
   clearSessionCookie(res);
   res.json({ ok: true });
@@ -66,6 +80,7 @@ authRouter.get('/me', requireAuth, handler(async (req) => buildMe(me(req).id, me
 
 authRouter.patch('/me', requireAuth, handler(async (req) => {
   const user = me(req);
+  await assertNotDemo(user.orgId);
   const input = parse(profileSchema, req.body);
   const clash = await prisma.user.findFirst({ where: { email: input.email, id: { not: user.id } } });
   if (clash) throw new HttpError(409, 'That email is already in use');
@@ -75,6 +90,7 @@ authRouter.patch('/me', requireAuth, handler(async (req) => {
 }));
 
 authRouter.post('/me/password', requireAuth, handler(async (req, res) => {
+  await assertNotDemo(me(req).orgId);
   const { current, next } = parse(changePasswordSchema, req.body);
   const user = await prisma.user.findUniqueOrThrow({ where: { id: me(req).id } });
   if (!(await bcrypt.compare(current, user.passwordHash))) throw badRequest('Current password is incorrect');

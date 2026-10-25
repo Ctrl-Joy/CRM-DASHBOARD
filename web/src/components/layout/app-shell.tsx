@@ -213,6 +213,23 @@ function UserMenu() {
   );
 }
 
+/** Reminds visitors of the shared Northwind Demo workspace that it's sample data. */
+function DemoBanner() {
+  const { data: me } = useMe();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  if (me?.org.name !== 'Northwind Demo') return null;
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-accent px-4 py-1.5 text-center text-xs text-accent-foreground">
+      <span><b className="font-semibold">Live demo:</b> you're exploring a sample company as {me.name} ({me.role}). Changes are visible to other visitors.</span>
+      <button className="font-semibold underline underline-offset-2"
+        onClick={async () => { await api.post('/auth/logout'); qc.clear(); navigate('/signup'); }}>
+        Create your own workspace →
+      </button>
+    </div>
+  );
+}
+
 export function AppShell() {
   const { sidebarCollapsed, toggleSidebar, mobileNavOpen, setMobileNav, setPalette } = useUi();
   const quick = useQuickCreate((s) => s.open);
@@ -247,6 +264,7 @@ export function AppShell() {
       </Dialog>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <DemoBanner />
         <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/85 px-3 backdrop-blur sm:px-5">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu /></Button>
           <button onClick={() => setPalette(true)}

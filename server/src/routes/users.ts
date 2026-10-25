@@ -6,6 +6,7 @@ import { me, requirePermission } from '../lib/auth';
 import { badRequest, handler, HttpError, notFound, parse } from '../lib/http';
 import { audit, diff } from '../lib/audit';
 import { userSelect } from '../lib/records';
+import { assertNotDemo } from '../services/demo';
 
 export const usersRouter = Router();
 
@@ -25,6 +26,7 @@ usersRouter.get('/', handler(async (req) => {
 
 usersRouter.post('/', requirePermission('users:manage'), handler(async (req, res) => {
   const user = me(req);
+  await assertNotDemo(user.orgId);
   const input = parse(inviteUserSchema, req.body);
   if (await prisma.user.findUnique({ where: { email: input.email } })) throw new HttpError(409, 'A user with that email already exists');
   if (input.teamId && !(await prisma.team.findFirst({ where: { id: input.teamId, orgId: user.orgId } }))) throw badRequest('Team not found');
@@ -42,6 +44,7 @@ usersRouter.post('/', requirePermission('users:manage'), handler(async (req, res
 
 usersRouter.patch('/:id', requirePermission('users:manage'), handler(async (req) => {
   const user = me(req);
+  await assertNotDemo(user.orgId);
   const target = await prisma.user.findFirst({ where: { id: req.params.id, orgId: user.orgId, deletedAt: null } });
   if (!target) throw notFound('User');
   const input = parse(updateUserSchema, req.body);

@@ -11,9 +11,10 @@ import { PrismaClient } from '@prisma/client';
 import { LOST_REASONS, SLA_HOURS, quoteTotals, lineTotal } from '@crm/shared';
 import { scoreLead } from '../src/services/scoring';
 import { newApiKey } from '../src/services/setup';
+import { DEMO_ORG_NAME } from '../src/services/demo';
 
 const prisma = new PrismaClient();
-const DEMO_ORG = 'Northwind Demo';
+const DEMO_ORG = DEMO_ORG_NAME;
 export const DEMO_PASSWORD = 'demo-password-2026';
 
 // Deterministic PRNG so every seed run produces the same dataset.

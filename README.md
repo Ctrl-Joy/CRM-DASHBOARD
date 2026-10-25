@@ -44,6 +44,13 @@ It never touches other organizations. Sign in with one of these accounts. They a
 | Manager | manager@demo.nimbus.test | demo-password-2026 |
 | Rep | sam@demo.nimbus.test | demo-password-2026 |
 
+#### Live demo for showcasing
+
+Once the demo organization exists, visitors don't need these passwords. The home page shows **Try the live demo**, and the sign-in page offers one-click **Admin / Manager / Sales rep** buttons. Inside the demo, a banner reminds visitors that it's sample data shared with other visitors. Profile, password and user settings are read-only there, so nobody can lock others out.
+
+- Run `npm run seed` again at any time to reset the demo to its original state. Dates are relative to when you seed, so re-seeding also keeps it looking current.
+- Set `DEMO_LOGIN=false` in `server/.env` to hide the demo buttons. The demo accounts still work with their passwords.
+
 ## Scripts
 
 | Command | What it does |

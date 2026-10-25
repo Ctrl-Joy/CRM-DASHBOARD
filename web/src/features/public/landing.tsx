@@ -6,6 +6,7 @@ import {
   MoreVertical, Play, Plus, Search, Send, Settings, Wallet, Workflow,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useDemoAvailable, useDemoLogin } from './auth';
 import { cn } from '@/lib/utils';
 
 const VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4';
@@ -68,6 +69,7 @@ function Hero() {
 
         <motion.div {...fadeUp(16, 0.6, 0.3)} className="mt-5 flex items-center gap-3">
           <Button asChild className="rounded-full px-6 py-5 font-body text-sm font-medium"><Link to="/signup">Book a demo</Link></Button>
+          <LiveDemoButton />
           <Button variant="ghost" aria-label="Watch the product video"
             className="h-11 w-11 rounded-full border-0 bg-background shadow-[0_2px_12px_rgba(0,0,0,0.08)] hover:bg-background/80">
             <Play className="h-4 w-4 fill-foreground" />
@@ -82,6 +84,19 @@ function Hero() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/** Shown only when the server has the Northwind Demo workspace. */
+function LiveDemoButton() {
+  const available = useDemoAvailable();
+  const { start, pending } = useDemoLogin();
+  if (!available) return null;
+  return (
+    <Button variant="outline" loading={pending !== null} onClick={() => start()}
+      className="rounded-full border-border bg-background px-6 py-5 font-body text-sm font-medium">
+      Try the live demo
+    </Button>
   );
 }
 

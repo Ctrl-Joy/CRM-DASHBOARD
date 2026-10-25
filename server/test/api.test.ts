@@ -175,3 +175,30 @@ describe('quotes and tickets', () => {
     expect(resolved.resolvedAt).toBeTruthy();
   });
 });
+
+describe('live demo sign-in', () => {
+  it('is unavailable until the Northwind Demo organization exists', async () => {
+    expect((await request(app).get('/api/auth/demo').expect(200)).body.available).toBe(false);
+    await request(app).post('/api/auth/demo').set(H).send({ role: 'admin' }).expect(404);
+  });
+
+  it('signs visitors into the demo org only, with account settings locked', async () => {
+    const owner = await signup('Northwind Demo');
+    const me = (await owner.get('/api/auth/me').expect(200)).body;
+    await prisma.user.update({ where: { id: me.id }, data: { email: 'admin@demo.nimbus.test' } });
+    expect((await request(app).get('/api/auth/demo').expect(200)).body.available).toBe(true);
+
+    const visitor = request.agent(app);
+    await visitor.post('/api/auth/demo').set(H).send({ role: 'admin' }).expect(200);
+    const seen = (await visitor.get('/api/auth/me').expect(200)).body;
+    expect(seen.org.name).toBe('Northwind Demo');
+    await visitor.post('/api/auth/me/password').set(H).send({ current: 'correct-horse', next: 'another-pass' }).expect(403);
+    await visitor.post('/api/users').set(H).send({ name: 'X', email: email('x'), role: 'rep', password: 'temporary-pass' }).expect(403);
+    await visitor.post('/api/contacts').set(H).send({ firstName: 'Visitor' }).expect(201);
+
+    // Roles without a demo account fall back to admin; real orgs never get the guard.
+    await request(app).post('/api/auth/demo').set(H).send({ role: 'nope' }).expect(200);
+    const real = await signup();
+    await real.post('/api/users').set(H).send({ name: 'Y', email: email('y'), role: 'rep', password: 'temporary-pass' }).expect(201);
+  });
+});

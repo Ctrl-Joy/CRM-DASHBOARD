@@ -3,8 +3,9 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useMe } from '@/hooks/data';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { loginSchema, signupSchema, type LoginInput, type SignupInput } from '@crm/shared';
 import { api, ApiError } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -55,19 +56,66 @@ function useAuthSubmit<T extends Record<string, unknown>>(path: string, setError
   };
 }
 
+type DemoRole = 'admin' | 'manager' | 'rep';
+
+/** Whether the server has the separate Northwind Demo workspace to show off. */
+export function useDemoAvailable() {
+  const { data } = useQuery({ queryKey: ['demo'], queryFn: () => api.get<{ available: boolean }>('/auth/demo'), staleTime: 60_000, retry: false });
+  return data?.available ?? false;
+}
+
+/** Signs into the shared demo workspace as the chosen role. */
+export function useDemoLogin() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [pending, setPending] = React.useState<DemoRole | null>(null);
+  const start = async (role: DemoRole = 'admin') => {
+    setPending(role);
+    try {
+      await api.post('/auth/demo', { role });
+      await qc.invalidateQueries({ queryKey: ['me'] });
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setPending(null);
+    }
+  };
+  return { start, pending };
+}
+
+function DemoAccess() {
+  const available = useDemoAvailable();
+  const { start, pending } = useDemoLogin();
+  if (!available) return null;
+  const roles: { role: DemoRole; label: string }[] = [{ role: 'admin', label: 'Admin' }, { role: 'manager', label: 'Manager' }, { role: 'rep', label: 'Sales rep' }];
+  return (
+    <div className="mt-6 rounded-lg border border-dashed p-4">
+      <p className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="size-4 text-accent" />Explore the live demo</p>
+      <p className="mt-1 text-xs text-muted-foreground">A sample company with deals, contacts, tickets and reports. No sign-up needed.</p>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        {roles.map(({ role, label }) => (
+          <Button key={role} type="button" variant="outline" size="sm" loading={pending === role} disabled={pending !== null} onClick={() => start(role)}>{label}</Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function LoginPage() {
   const { data: me } = useMe();
   const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
   const submit = useAuthSubmit<LoginInput>('/auth/login', setError);
   if (me) return <Navigate to="/dashboard" replace />;
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to your workspace." footer={<>New to Nexora?<Link to="/signup" className="font-medium text-primary hover:underline">Create an account</Link></>}>
+    <AuthLayout title="Welcome back" subtitle="Sign in to your workspace." footer={<>New to Nexora? <Link to="/signup" className="font-medium text-primary hover:underline">Create an account</Link></>}>
       <form onSubmit={handleSubmit(submit)} className="space-y-4" noValidate>
         {errors.root && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{errors.root.message}</p>}
         <Field label="Work email" error={errors.email?.message}><Input type="email" autoComplete="email" autoFocus {...register('email')} /></Field>
         <Field label="Password" error={errors.password?.message}><Input type="password" autoComplete="current-password" {...register('password')} /></Field>
         <Button type="submit" className="w-full" loading={isSubmitting}>Sign in</Button>
       </form>
+      <DemoAccess />
     </AuthLayout>
   );
 }
