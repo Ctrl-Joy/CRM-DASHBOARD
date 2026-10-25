@@ -31,26 +31,30 @@ async function reachable() {
 }
 
 let pgServer = null;
-if (isLocal && !(await reachable())) {
-  const { default: EmbeddedPostgres } = await import('embedded-postgres');
-  const dir = `${root}server/.pgdata`;
-  pgServer = new EmbeddedPostgres({
-    databaseDir: dir, port: 5433, persistent: true,
-    user: decodeURIComponent(url.username), password: decodeURIComponent(url.password),
-    onLog: () => {}, onError: (e) => console.error(String(e)),
-  });
-  if (!existsSync(`${dir}/PG_VERSION`)) {
-    console.log('Setting up the local PostgreSQL database (first run only)…');
-    await pgServer.initialise();
+if (isLocal) {
+  if (!(await reachable())) {
+    const { default: EmbeddedPostgres } = await import('embedded-postgres');
+    const dir = `${root}server/.pgdata`;
+    pgServer = new EmbeddedPostgres({
+      databaseDir: dir, port: 5433, persistent: true,
+      user: decodeURIComponent(url.username), password: decodeURIComponent(url.password),
+      onLog: () => {}, onError: (e) => console.error(String(e)),
+    });
+    if (!existsSync(`${dir}/PG_VERSION`)) {
+      console.log('Setting up the local PostgreSQL database (first run only)…');
+      await pgServer.initialise();
+    }
+    await pgServer.start();
+    console.log(`Local PostgreSQL running on port 5433 (data in server/.pgdata).`);
   }
-  await pgServer.start();
-  const name = url.pathname.slice(1);
-  const client = pgServer.getPgClient('postgres');
+  // Create the database named in DATABASE_URL if it doesn't exist yet.
+  const { default: pg } = await import('pg');
+  const name = decodeURIComponent(url.pathname.slice(1));
+  const client = new pg.Client({ connectionString: process.env.DATABASE_URL.replace(/\/[^/?]*(\?|$)/, '/postgres$1') });
   await client.connect();
   const { rowCount } = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [name]);
   if (!rowCount) await client.query(`CREATE DATABASE "${name.replace(/"/g, '')}"`);
   await client.end();
-  console.log(`Local PostgreSQL running on port 5433 (data in server/.pgdata).`);
 }
 
 let stopping = false;

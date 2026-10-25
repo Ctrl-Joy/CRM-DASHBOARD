@@ -69,7 +69,7 @@
   <h1>Nexora CRM<br><em>The Illustrated Beginner’s Guide</em></h1>
   <p class="sub">Every screen, every button, explained with screenshots, written for people using a CRM for the first time.</p>
   <img src="guide-images/dashboard-kpis.jpg" alt="">
-  <div class="meta"><span>Version 1.0 · October 2026</span><span>Screenshots use a demo company, “Northwind Demo”</span></div>
+  <div class="meta"><span>Version 1.1 · October 2026</span><span>Screenshots from the live demo company, “Northwind Demo”</span></div>
 </section>
 
 <!-- CONTENTS -->
@@ -79,7 +79,7 @@
   <div class="toc">
     <a href="#c0"><span>0</span>How to read this guide</a>
     <a href="#c1"><span>1</span>CRM in plain English</a>
-    <a href="#c2"><span>2</span>Signing up and signing in</a>
+    <a href="#c2"><span>2</span>Signing up, signing in, live demo</a>
     <a href="#c3"><span>3</span>Your first five minutes</a>
     <a href="#c4"><span>4</span>The screen layout</a>
     <a href="#c5"><span>5</span>Search, New, notifications, menu</a>
@@ -112,7 +112,7 @@
     <li>Every screenshot has <b>red numbered markers</b>. Under it, a list with the same red numbers tells you what each marked thing is and does.</li>
     <li><b>Grey numbered lists</b> are step-by-step instructions: do them in order.</li>
     <li>Boxes: <span style="color:#10b981;font-weight:600">green “Rookie tip”</span> for beginner advice, <span style="color:var(--indigo);font-weight:600">blue “Good to know”</span> for details, <span style="color:#a07c10;font-weight:600">yellow “Heads up”</span> for limits and permissions.</li>
-    <li>The screenshots come from a demo company, so names and numbers will differ from yours. <b>Your own account starts completely empty</b> (chapter 3).</li>
+    <li>The screenshots come from the built-in <b>live demo</b> company (chapter 2), so names and numbers will differ from yours, and a purple “Live demo” banner shows at the top of them. <b>Your own account starts completely empty</b> (chapter 3) and has no banner.</li>
   </ul>
 </section>
 
@@ -149,12 +149,13 @@
 <!-- 2 -->
 <section class="chapter" id="c2">
   <div class="kicker">Chapter 2</div>
-  <h2>Signing up and signing in</h2>
-  <p class="lede">The home page is where new people create an account and existing users sign in.</p>
+  <h2>Signing up, signing in and the live demo</h2>
+  <p class="lede">The home page is where new people create an account, existing users sign in, and anyone can try a ready-made demo company without signing up.</p>
   <figure><img src="guide-images/landing.jpg" alt="Nexora home page"><figcaption>The Nexora home page.</figcaption></figure>
   <ol class="legend">
     <li data-n="1"><b>Sign in</b>: for people who already have an account.</li>
     <li data-n="2"><b>Book a demo</b>: opens the sign-up form to create a new account and workspace.</li>
+    <li data-n="3"><b>Try the live demo</b>: one click opens a sample company full of data, signed in as its admin. No email or password needed (see “Try the live demo” below).</li>
   </ol>
   <figure class="small"><img src="guide-images/login.jpg" alt="Sign in page"><figcaption>The sign-in page.</figcaption></figure>
   <ol class="legend">
@@ -162,6 +163,7 @@
     <li data-n="2"><b>Password</b>.</li>
     <li data-n="3"><b>Sign in</b> (or press <kbd>Enter</kbd>).</li>
     <li data-n="4"><b>Create an account</b> if you don’t have one yet.</li>
+    <li data-n="5"><b>Explore the live demo</b>: open the demo company as an <b>Admin</b>, a <b>Manager</b> or a <b>Sales rep</b>, to see how each role’s view differs (chapter 24).</li>
   </ol>
   <h3>Create an account</h3>
   <figure class="small"><img src="guide-images/signup.jpg" alt="Sign up page"></figure>
@@ -171,6 +173,26 @@
     <li>You become the <b>Admin</b> (the boss account) of a brand-new, empty workspace for your company.</li>
   </ol>
   <div class="tip"><b>Good to know</b>If a colleague already uses Nexora, don’t sign up separately: ask your admin to add you (chapter 23). Signing up always creates a <i>new, separate</i> company workspace.</div>
+</section>
+
+<section>
+  <h3>Try the live demo (no sign-up)</h3>
+  <p>The live demo is a made-up company called <b>Northwind Demo</b>, with 20 companies, 60 contacts, 40 deals, leads, tickets, quotes, campaigns, reports and automations already filled in. It’s the quickest way to see what Nexora does. Every screenshot in this guide comes from it.</p>
+  <ol class="steps">
+    <li>On the home page click <b>Try the live demo</b>, or on the sign-in page pick <b>Admin</b>, <b>Manager</b> or <b>Sales rep</b>.</li>
+    <li>You land on the demo dashboard straight away, signed in as that person.</li>
+    <li>Click around freely: open deals, drag cards, log calls, run reports.</li>
+  </ol>
+  <figure><img src="guide-images/demo-banner.jpg" alt="Live demo banner"><figcaption>Inside the demo, a purple banner is always shown at the top.</figcaption></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Live demo banner</b>: who you are signed in as, and a reminder that this is shared sample data. Other visitors can see what you change.</li>
+    <li data-n="2"><b>Create your own workspace →</b>: signs you out of the demo and opens the sign-up form for your own, empty company.</li>
+  </ol>
+  <figure class="half"><img src="guide-images/demo-readonly.jpg" alt="Read-only message in the demo"><figcaption>Account settings are locked in the demo.</figcaption></figure>
+  <ol class="legend">
+    <li data-n="1">Because many visitors share the demo, <b>profile, password and user settings are read-only</b> there, so nobody can lock others out. You’ll see this message if you try.</li>
+  </ol>
+  <div class="rookie"><b>Rookie tip</b>Use the demo to practise. When you’re ready for real work, click <b>Create your own workspace</b>. Your own company starts completely empty and is private to your team. The purple banner never appears there.</div>
 </section>
 
 <!-- 3 -->
@@ -839,6 +861,7 @@
   <h2>Troubleshooting and FAQ</h2>
   <table>
     <tr><th style="width:38%">Problem</th><th>What to do</th></tr>
+    <tr><td>“Account and user settings are read-only in the live demo”</td><td>You’re in the shared demo company. Create your own workspace to change your profile, password and users.</td></tr>
     <tr><td>“You don’t have permission to do that”</td><td>Your role doesn’t include that action. Ask an admin (chapter 24).</td></tr>
     <tr><td>I can’t find a record a colleague mentioned</td><td>Reps only see their own records. Ask the owner or a manager to reassign it to you.</td></tr>
     <tr><td>“Can’t reach the server right now”</td><td>The server is restarting or offline. Click <b>Try again</b> after a moment.</td></tr>
