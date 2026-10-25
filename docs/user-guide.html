@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nexora CRM — User Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap">
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  @page :first { margin: 0; }
+  :root { --ink: #22272e; --muted: #6b7378; --indigo: #6366f1; --indigo-d: #4346c8; --rule: #e5e5e5; --soft: #f5f5f7; --tint: #eef0ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 10pt; line-height: 1.55; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1, h2, h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; color: var(--ink); }
+  h2 { font-size: 26pt; line-height: 1.05; margin: 0 0 4pt; }
+  h3 { font-size: 15pt; margin: 16pt 0 4pt; }
+  h4 { font-size: 10pt; font-weight: 600; margin: 12pt 0 3pt; }
+  p { margin: 0 0 7pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+  li { margin: 1.5pt 0; }
+  b, strong { font-weight: 600; }
+  code, kbd { font-family: Consolas, "Courier New", monospace; font-size: 8.8pt; background: var(--soft); border: 1px solid var(--rule); border-radius: 3px; padding: 0 3px; }
+  a { color: var(--indigo-d); text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9pt; page-break-inside: avoid; }
+  th { text-align: left; font-weight: 600; background: var(--soft); border-bottom: 1px solid #d9d9de; padding: 4pt 6pt; }
+  td { border-bottom: 1px solid var(--rule); padding: 4pt 6pt; vertical-align: top; }
+  .section { page-break-before: always; }
+  .kicker { font-size: 8pt; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--indigo); margin-bottom: 2pt; }
+  .lede { color: var(--muted); font-size: 10.5pt; margin-bottom: 10pt; }
+  .tip, .note { border-left: 3px solid var(--indigo); background: var(--tint); padding: 6pt 9pt; margin: 8pt 0 10pt; border-radius: 0 4px 4px 0; page-break-inside: avoid; }
+  .note { border-color: #c9a227; background: #fbf6e6; }
+  .tip b:first-child, .note b:first-child { display: block; margin-bottom: 1pt; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 22pt; margin: 4pt 0; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 15pt; height: 15pt; border-radius: 50%; background: var(--ink); color: #fff; font-size: 8pt; font-weight: 600; display: grid; place-items: center; line-height: 15pt; text-align: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+  .card { border: 1px solid var(--rule); border-radius: 6px; padding: 8pt 10pt; page-break-inside: avoid; }
+  .card h4 { margin-top: 0; }
+  .pill { display: inline-block; font-size: 7.8pt; font-weight: 600; padding: 0 6px; border-radius: 9px; background: var(--tint); color: var(--indigo-d); }
+  .ok { color: #1c7c4b; font-weight: 600; } .no { color: #b3261e; }
+
+  /* cover */
+  .cover { height: 297mm; padding: 26mm 22mm; display: flex; flex-direction: column; background: linear-gradient(160deg, #ffffff 0%, #f3f3ff 55%, #e4e6ff 100%); }
+  .cover .logo { font-size: 15pt; font-weight: 600; letter-spacing: -0.01em; }
+  .cover .logo span { color: var(--indigo); }
+  .cover h1 { font-size: 56pt; line-height: .95; margin: 70mm 0 8pt; }
+  .cover h1 em { font-style: italic; }
+  .cover .sub { font-size: 13pt; color: var(--muted); max-width: 120mm; }
+  .cover .meta { margin-top: auto; font-size: 9pt; color: var(--muted); border-top: 1px solid #d6d8f2; padding-top: 8pt; display: flex; justify-content: space-between; }
+
+  /* contents */
+  .toc { columns: 2; column-gap: 14mm; margin-top: 10pt; }
+  .toc a { display: block; padding: 3pt 0; border-bottom: 1px dotted #d0d0d6; color: var(--ink); break-inside: avoid; }
+  .toc a span { color: var(--indigo); font-weight: 600; display: inline-block; width: 18pt; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <div class="logo"><span>✦</span> Nexora</div>
+  <h1>Nexora CRM<br><em>User Guide</em></h1>
+  <p class="sub">Every feature, end to end: from creating your workspace to closing deals, supporting customers and reporting on results.</p>
+  <div class="meta"><span>Version 1.0 · October 2026</span><span>For sales reps, managers and administrators</span></div>
+</div>
+
+<!-- ===================== CONTENTS ===================== -->
+<div class="section" id="contents">
+  <div class="kicker">Contents</div>
+  <h2>What’s inside</h2>
+  <div class="toc">
+    <a href="#s1"><span>1</span>Getting started</a>
+    <a href="#s2"><span>2</span>Finding your way around</a>
+    <a href="#s3"><span>3</span>The dashboard</a>
+    <a href="#s4"><span>4</span>Working with lists</a>
+    <a href="#s5"><span>5</span>Leads</a>
+    <a href="#s6"><span>6</span>Contacts</a>
+    <a href="#s7"><span>7</span>Companies</a>
+    <a href="#s8"><span>8</span>Deals and the pipeline</a>
+    <a href="#s9"><span>9</span>Products and quotes</a>
+    <a href="#s10"><span>10</span>Activities and tasks</a>
+    <a href="#s11"><span>11</span>Calendar</a>
+    <a href="#s12"><span>12</span>Inbox, email and templates</a>
+    <a href="#s13"><span>13</span>Support tickets</a>
+    <a href="#s14"><span>14</span>Campaigns</a>
+    <a href="#s15"><span>15</span>Reports</a>
+    <a href="#s16"><span>16</span>Automations</a>
+    <a href="#s17"><span>17</span>AI assistance</a>
+    <a href="#s18"><span>18</span>Settings and administration</a>
+    <a href="#s19"><span>19</span>Roles and permissions</a>
+    <a href="#s20"><span>20</span>End-to-end walkthrough</a>
+    <a href="#s21"><span>21</span>Shortcuts, tips and limits</a>
+  </div>
+  <div class="tip" style="margin-top:16pt"><b>How to read this guide</b>Each chapter explains what a feature is for, then how to use it step by step. Notes marked “Admin” or “Manager” need that role or the matching permission (chapter 19).</div>
+</div>
+
+<!-- ===================== 1 ===================== -->
+<div class="section" id="s1">
+  <div class="kicker">Chapter 1</div>
+  <h2>Getting started</h2>
+  <p class="lede">Create your workspace, sign in and invite your team.</p>
+
+  <h3>Start the app (local install)</h3>
+  <ol class="steps">
+    <li>Install Node.js 20.11 or newer.</li>
+    <li>In the project folder run <code>npm run setup</code>. It installs packages, creates <code>server/.env</code> with a random secret and creates the database.</li>
+    <li>Run <code>npm run dev</code> and open <b>http://localhost:5173</b>.</li>
+  </ol>
+  <p>For production, run <code>npm run build</code> then <code>npm start</code>; the API and the app are served together on one port (default 4000).</p>
+
+  <h3>Create your account</h3>
+  <ol class="steps">
+    <li>On the home page click <b>Book a demo</b>, or click <b>Sign in</b> and then <b>Create an account</b>.</li>
+    <li>Enter your name, company, work email and a password of at least 8 characters.</li>
+    <li>You land on the dashboard as the <b>Admin</b> of a brand-new organization.</li>
+  </ol>
+  <div class="tip"><b>Your workspace starts empty</b>New accounts contain no sample data: no contacts, deals, leads or statistics. The only thing created for you is one empty pipeline called <i>Sales Pipeline</i> with five stages, because deals need a pipeline to live in. The dashboard shows a five-step “Welcome to your new CRM” checklist until you add your first records.</div>
+
+  <h3>Invite your team</h3>
+  <ol class="steps">
+    <li>Go to <b>Settings → Users &amp; quotas</b> and click <b>Add user</b>.</li>
+    <li>Enter their name, email, role (Sales Rep, Manager or Admin), a temporary password, an optional monthly quota and territory.</li>
+    <li>Share the temporary password securely. They can change it in <b>Settings → Profile</b>.</li>
+    <li>Optionally create teams in <b>Settings → Teams</b> and set a manager; managers then see their team’s records and dashboards.</li>
+  </ol>
+
+  <h3>Sign out and sessions</h3>
+  <p>Use the avatar menu (top right) → <b>Sign out</b>. Changing your password signs you out on every other device. When an admin changes your role or deactivates you, your sessions end immediately.</p>
+
+  <h3>Optional demo data</h3>
+  <p>Running <code>npm run seed</code> creates a separate organization, <i>Northwind Demo</i>, with realistic sample data and five demo logins (password <code>demo-password-2026</code>). It never touches your own organization. Use it to explore before entering real data.</p>
+</div>
+
+<!-- ===================== 2 ===================== -->
+<div class="section" id="s2">
+  <div class="kicker">Chapter 2</div>
+  <h2>Finding your way around</h2>
+  <p class="lede">The layout is the same on every screen.</p>
+
+  <table>
+    <tr><th style="width:28%">Area</th><th>What it does</th></tr>
+    <tr><td><b>Sidebar</b> (left)</td><td>Dashboard; <b>Sales</b>: Leads, Contacts, Companies, Deals, Products &amp; quotes; <b>Work</b>: Tasks, Calendar, Inbox; <b>Service &amp; marketing</b>: Tickets, Campaigns; <b>Insights</b>: Reports, Automations; Settings at the bottom. Click <b>Collapse</b> to shrink it to icons. On phones it opens from the ☰ menu button.</td></tr>
+    <tr><td><b>Search or jump to…</b></td><td>Opens the command palette (also <kbd>Ctrl</kbd> + <kbd>K</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd>). Type 2+ characters to search contacts, companies, leads, deals, tickets and tasks at once. With an empty search it lists quick actions (New deal, New contact…) and every page.</td></tr>
+    <tr><td><b>+ New</b></td><td>Create a deal, contact, company, lead, task, ticket or campaign from anywhere. After saving you are taken to the new record.</td></tr>
+    <tr><td><b>Bell</b></td><td>Notifications: assignments, stage changes on your deals, task reminders, ticket SLA warnings and automation alerts. A red badge shows the unread count; click an item to open it, or <b>Mark all read</b>.</td></tr>
+    <tr><td><b>Avatar menu</b></td><td>Your name, organization and role; Profile; Settings; theme (Light / Dark / System); Sign out.</td></tr>
+  </table>
+
+  <h3>Record pages</h3>
+  <p>Every contact, company, lead, deal and ticket has a detail page with the same pattern:</p>
+  <ul>
+    <li><b>Header actions:</b> <b>Log call</b>, <b>Email</b>, <b>Task</b>, and a <b>⋯</b> menu with <i>Log meeting</i>, <i>Add note</i>, <i>Edit</i> and <i>Delete</i>.</li>
+    <li><b>Left column:</b> key details, custom fields, tags and <b>Files</b> (upload up to 10 MB per file; download or delete).</li>
+    <li><b>Right column:</b> tabs such as Timeline, Deals, Tasks, Emails, Tickets and Quotes.</li>
+  </ul>
+
+  <h3>Feedback you’ll see</h3>
+  <ul>
+    <li>Green/red pop-up messages (bottom right) confirm saves or explain errors.</li>
+    <li>Grey placeholder blocks while data loads; friendly empty states with a next step when there is nothing yet.</li>
+    <li>Deleting records, files, templates or workflows always asks for confirmation first.</li>
+  </ul>
+</div>
+
+<!-- ===================== 3 ===================== -->
+<div class="section" id="s3">
+  <div class="kicker">Chapter 3</div>
+  <h2>The dashboard</h2>
+  <p class="lede">Your home screen answers two questions: how are we doing, and what should I do next?</p>
+
+  <h3>Views and filters</h3>
+  <ul>
+    <li><b>My dashboard</b>: only records you own. <b>Team dashboard</b>: your team’s (managers) or the whole organization’s (admins). Admins and managers open on the Team view; reps see My dashboard only.</li>
+    <li><b>Date range:</b> This month, Last 30 days, This quarter, This year. Every metric is compared with the previous period of the same length.</li>
+    <li><b>Pipeline</b> (when you have more than one), and on the Team view: <b>Owner</b>, <b>Team</b> and <b>Territory</b>.</li>
+    <li>The dashboard refreshes automatically every minute.</li>
+  </ul>
+
+  <h3>Key metrics</h3>
+  <p>Four headline cards show at the top; <b>Show all 10 metrics</b> reveals the rest. Each shows a green or red arrow with the % change against the previous period (for velocity and response time, lower is better).</p>
+  <table>
+    <tr><th style="width:26%">Metric</th><th>How it is calculated</th></tr>
+    <tr><td>Revenue won</td><td>Total value of deals marked Won in the period.</td></tr>
+    <tr><td>Open pipeline</td><td>Total value of open deals at the end of the period.</td></tr>
+    <tr><td>Win rate</td><td>Won ÷ (won + lost) for deals closed in the period.</td></tr>
+    <tr><td>Quota attainment</td><td>Revenue won ÷ (monthly quotas of the people in view × months in the period).</td></tr>
+    <tr><td>Weighted forecast</td><td>Sum of each open deal’s value × its win probability.</td></tr>
+    <tr><td>Avg deal size</td><td>Average value of deals won in the period.</td></tr>
+    <tr><td>New leads</td><td>Leads created in the period.</td></tr>
+    <tr><td>Lead conversion</td><td>Share of those new leads that have been converted.</td></tr>
+    <tr><td>Deal velocity</td><td>Average days from creating a deal to winning it.</td></tr>
+    <tr><td>Lead response time</td><td>Average time from a lead arriving to its first response.</td></tr>
+  </table>
+
+  <h3>What to do next</h3>
+  <p>A ranked list of the most urgent work, ordered by urgency and deal value:</p>
+  <ul>
+    <li><b>Support SLA</b>: tickets past or within 4 hours of their deadline (highest priority).</li>
+    <li><b>Overdue task</b>: tasks past their due date.</li>
+    <li><b>Closing soon</b>: open deals expected to close within 7 days.</li>
+    <li><b>Stalled deal</b>: no activity for 14+ days. <b>At risk</b>: two or more risk signals (chapter 8).</li>
+    <li><b>Lead follow-up</b>: new leads waiting over an hour for a first response, higher scores first.</li>
+  </ul>
+  <p>Hover an item for quick actions: <b>Log a call</b> or <b>Create follow-up task</b>. The <b>Activity</b> tab shows the latest calls, emails, meetings and notes.</p>
+
+  <h3>Charts</h3>
+  <table>
+    <tr><th style="width:30%">Widget</th><th>Shows</th></tr>
+    <tr><td>Quota &amp; pipeline coverage</td><td>Gauge of quota attainment plus Won, Weighted and <b>Coverage</b> (open pipeline ÷ remaining quota). Below 3× coverage you get a warning to add or advance deals.</td></tr>
+    <tr><td>Revenue over time</td><td>Cumulative won revenue this period (solid) vs the previous period (dashed).</td></tr>
+    <tr><td>Pipeline by stage</td><td>Funnel of open deals per stage; hover for count and value.</td></tr>
+    <tr><td>Deals by owner</td><td>Won this period vs open pipeline for each person.</td></tr>
+    <tr><td>Lead sources</td><td>Donut of new leads by source.</td></tr>
+  </table>
+</div>
+
+<!-- ===================== 4 ===================== -->
+<div class="section" id="s4">
+  <div class="kicker">Chapter 4</div>
+  <h2>Working with lists</h2>
+  <p class="lede">Leads, contacts, companies, deals (list view), tickets and products share one powerful table.</p>
+
+  <div class="grid2">
+    <div class="card"><h4>Search &amp; filter</h4>Type in <b>Search…</b> to match names, emails, phones and companies. <b>Filters</b> narrows by status, owner (Me / Unassigned / a person), source, dates and more. <b>Clear</b> resets everything.</div>
+    <div class="card"><h4>Sort &amp; page</h4>Click a column header to sort; click again to reverse. Use the arrows at the bottom to page through 25 records at a time.</div>
+    <div class="card"><h4>Saved views</h4><b>Views</b> → name the current search + filters → <b>Save view</b>. Tick <i>Share with my team</i> to make it shared. Pick a view to re-apply it later.</div>
+    <div class="card"><h4>Inline edit</h4>Some columns (lifecycle stage, lead status, ticket priority/status, deal stage) are drop-downs: change them right in the table. The change saves instantly and rolls back if it fails.</div>
+    <div class="card"><h4>Bulk actions</h4>Tick rows (or the header box for the page). A bar appears with <b>Assign</b>, <b>Tag</b>, a status/stage setter and <b>Delete</b>, depending on your permissions.</div>
+    <div class="card"><h4>Import &amp; export</h4><b>⋯</b> → <b>Export CSV</b> downloads exactly what you’re filtering. <b>Import CSV</b> previews the file and imports up to 5,000 rows, then lists any rows it skipped and why.</div>
+  </div>
+
+  <h3>CSV import columns</h3>
+  <table>
+    <tr><th style="width:18%">Record</th><th>Recognised column headers (case and spacing don’t matter)</th></tr>
+    <tr><td>Contacts</td><td>First name, Last name (or a single “Name”), Email, Phone, Title, Company (created if new), Source, Lifecycle stage, Tags (separate with ;)</td></tr>
+    <tr><td>Companies</td><td>Name, Domain, Industry, Size, Phone, Address, Territory, Tags</td></tr>
+    <tr><td>Leads</td><td>First name, Last name, Email, Phone, Company, Title, Company size, Source, Territory</td></tr>
+    <tr><td>Deals</td><td>Title, Value, Currency, Expected close (added to the default pipeline’s first stage)</td></tr>
+    <tr><td>Products</td><td>Name, SKU, Price, Description</td></tr>
+  </table>
+  <div class="note"><b>Who can do what</b>Everyone can export by default. Importing, deleting and reassigning to other people need Manager-level permissions; admins can change this in Settings → Roles.</div>
+</div>
+
+<!-- ===================== 5 ===================== -->
+<div class="section" id="s5">
+  <div class="kicker">Chapter 5</div>
+  <h2>Leads</h2>
+  <p class="lede">Capture interest, score it, route it to the right person and convert it into business.</p>
+
+  <h3>Add leads</h3>
+  <ul>
+    <li><b>+ New lead</b> on the Leads page (or + New → Lead): name, email, phone, company, title, company size, source, status, owner, territory and campaign.</li>
+    <li><b>Import CSV</b> from the list’s ⋯ menu.</li>
+    <li><b>Website / API capture</b>: leads posted to your public form or API arrive automatically (see below).</li>
+  </ul>
+
+  <h3>Lead scoring (0–100)</h3>
+  <p>Every lead gets a score that updates when it changes or when you log activity. The lead page explains exactly where the points came from.</p>
+  <table>
+    <tr><th style="width:30%">Signal</th><th>Points</th></tr>
+    <tr><td>Source</td><td>Referral 25 · Partner 20 · Webinar 18 · Event 15 · Inbound API 15 · Website 12 · Paid ads 10 · Social 8 · Cold outreach 5 · Other 5</td></tr>
+    <tr><td>Job title</td><td>Decision-maker (CEO, CTO, founder, owner, VP…) 25 · Director / Head 18 · Manager / Lead 10 · other title 3</td></tr>
+    <tr><td>Company size</td><td>1000+: 15 · 501–1000: 13 · 201–500: 12 · 51–200: 10 · 11–50: 6 · 1–10: 3</td></tr>
+    <tr><td>Contact data</td><td>Business email 6 (free webmail 3) · Phone 4 · Company given 3 · Left a message 5</td></tr>
+    <tr><td>Engagement</td><td>4 per logged call, email or meeting, up to 20</td></tr>
+  </table>
+  <p>Scores of 70+ show a 🔥 flame, 40–69 amber, below 40 grey. The <b>AI insight</b> on the lead page suggests the next move (for example “High-fit lead with no response yet. Call within the hour”).</p>
+
+  <h3>Assignment</h3>
+  <ul>
+    <li>Leads you create belong to you unless you choose another owner (needs the reassign permission).</li>
+    <li>Inbound leads from the form/API are <b>auto-assigned</b> using <b>round-robin</b> across active sales reps, or <b>by territory</b> (falling back to round-robin). Set this in <b>Settings → Organization</b>. The new owner gets a notification.</li>
+    <li>The list shows <b>First response</b>; leads still waiting are highlighted in amber. Logging the first call/email/meeting records the response time and moves a <i>New</i> lead to <i>Contacted</i>.</li>
+  </ul>
+
+  <h3>Convert a lead</h3>
+  <ol class="steps">
+    <li>Open the lead and click <b>Convert</b>.</li>
+    <li>Keep <b>Also create a deal</b> ticked to create a deal; set its title, value, expected close date, pipeline and stage.</li>
+    <li>Click <b>Convert</b>. Nexora creates the contact, links or creates the company named on the lead, creates the deal, and moves the lead’s activities, tasks and files across. The lead is marked Qualified and shows <b>View contact</b>.</li>
+  </ol>
+
+  <h3>Public capture form and API <span class="pill">Admin</span></h3>
+  <p><b>Settings → Lead capture &amp; API</b> shows your hosted form link (<code>/f/&lt;key&gt;</code>), the POST endpoint and a sample request. Required fields: first name and email. Website forms can post directly. <b>Rotate key</b> invalidates the old link immediately.</p>
+</div>
+
+<!-- ===================== 6 ===================== -->
+<div class="section" id="s6">
+  <div class="kicker">Chapter 6</div>
+  <h2>Contacts</h2>
+  <p class="lede">The people you sell to and support, with their whole history in one place.</p>
+
+  <h3>The contacts list</h3>
+  <ul>
+    <li>Columns: name and title, company, email, lifecycle stage (editable inline), owner, tags, last contacted and created date.</li>
+    <li>Filter by lifecycle stage, status, source, owner and created date; filter by tag; save views.</li>
+    <li>Lifecycle stages: Subscriber → Lead → MQL → SQL → Opportunity → Customer → Evangelist. Winning a deal automatically moves its contact to <b>Customer</b>.</li>
+  </ul>
+
+  <h3>The 360° contact page</h3>
+  <ul>
+    <li><b>AI summary</b>: when you last spoke, how many touchpoints in 30 days, open deals and their stage, open tickets, and the next planned step (or a nudge to plan one).</li>
+    <li><b>About</b>: email (click to email), phone (click to call), owner, source, last contacted, custom fields and tags.</li>
+    <li><b>Company</b> card, linking to the company page.</li>
+    <li><b>Tabs</b>: Timeline (filter by calls, emails, meetings, notes), Deals (with risk flags and <i>New deal</i>), Tasks, Emails and Tickets (<i>New ticket</i>).</li>
+    <li><b>Files</b>: attach proposals, contracts and other documents.</li>
+  </ul>
+
+  <h3>Find and merge duplicates</h3>
+  <ol class="steps">
+    <li>On Contacts click <b>Find duplicates</b>. Nexora groups contacts with the same email or the same full name.</li>
+    <li>The oldest record in each group is kept. Click <b>Merge</b> next to a duplicate.</li>
+    <li>Its deals, activities, tasks, tickets, files and tags move to the kept contact; empty fields are filled from the duplicate; the duplicate is removed. The merge is recorded in the audit log.</li>
+  </ol>
+</div>
+
+<!-- ===================== 7 ===================== -->
+<div class="section" id="s7">
+  <div class="kicker">Chapter 7</div>
+  <h2>Companies</h2>
+  <p class="lede">The accounts your contacts and deals belong to.</p>
+  <ul>
+    <li><b>Create</b> from + New → Company, or automatically when converting a lead or importing contacts with a company name.</li>
+    <li><b>Fields:</b> name, website domain, industry, employee size, phone, territory, owner, address, tags and custom fields.</li>
+    <li><b>List:</b> shows contact and deal counts per company; filter by industry, size and owner.</li>
+    <li><b>Company page:</b> four numbers at the top (open pipeline, won revenue, contacts, open tickets); <i>About</i>; <i>People</i> with <b>+ Add</b> for a new contact at this company; files; tabs for Deals, Timeline, Tasks and Tickets; a <b>+ Deal</b> shortcut.</li>
+  </ul>
+</div>
+
+<!-- ===================== 8 ===================== -->
+<div class="section" id="s8">
+  <div class="kicker">Chapter 8</div>
+  <h2>Deals and the pipeline</h2>
+  <p class="lede">Track every opportunity from first conversation to signed contract.</p>
+
+  <h3>Create a deal</h3>
+  <p>+ New → Deal, <b>+ New deal</b> on the Deals page, <b>+ Add deal</b> at the bottom of a board column, from a contact or company, or by converting a lead. Fields: title, value, currency, pipeline and stage, contact, company, owner, expected close date, win probability (leave blank to use the stage’s default), and source campaign.</p>
+
+  <h3>The board (kanban)</h3>
+  <ol class="steps">
+    <li>Each column is a stage, headed with its deal count, total value, win probability and weighted value. The bar above shows open deals, pipeline total and weighted forecast.</li>
+    <li><b>Drag a card</b> to another column to move it. The move is instant and saved in the background; if saving fails it snaps back with an error.</li>
+    <li>While dragging, <b>Won</b> and <b>Lost</b> zones appear at the bottom of the screen. Drop on Won to win the deal, or on Lost to choose a loss reason.</li>
+    <li>Filter the board by text or owner; switch pipelines with the pipeline selector.</li>
+  </ol>
+  <p>Cards show value, expected close date (red when overdue), owner and a risk flag. Click a card’s title to open the deal.</p>
+
+  <h3>List view</h3>
+  <p>Switch <b>Board / List</b> (top right; your choice is remembered). The list adds weighted value and probability, inline stage changes, filters (status, stage, owner, close date), export and import.</p>
+
+  <h3>The deal page</h3>
+  <ul>
+    <li><b>Stage path</b> across the top: click any stage to move the deal there.</li>
+    <li><b>Won</b> / <b>Lost</b> buttons (Lost asks for a reason: Price, Competitor, No budget, No decision, Timing, Missing features, Went silent, Other). Closed deals show <b>Reopen</b>.</li>
+    <li><b>Deal details</b>: value, weighted value and probability, expected close, stage, contact, company, owner, dates, lost reason, custom fields.</li>
+    <li>Tabs: <b>Timeline</b>, <b>Tasks</b>, <b>Quotes</b> (chapter 9) and <b>Stage history</b> (who moved it, from where, when).</li>
+  </ul>
+
+  <h3>Deal risk flags</h3>
+  <table>
+    <tr><th>Signal</th><th>Triggered when</th></tr>
+    <tr><td>Gone quiet</td><td>No activity for 14+ days</td></tr>
+    <tr><td>Stuck</td><td>In the same stage for 21+ days</td></tr>
+    <tr><td>Overdue</td><td>Expected close date has passed</td></tr>
+    <tr><td>Low confidence</td><td>Closing within 7 days at under 50% probability</td></tr>
+    <tr><td>Unplanned</td><td>No expected close date set</td></tr>
+  </table>
+  <p>One signal shows an amber <b>Watch</b> flag; two or more show a red <b>At risk</b> flag. Hover the flag to see the reasons.</p>
+
+  <h3>Forecasting</h3>
+  <p>Weighted value = deal value × win probability. Default stages: Qualification 10%, Discovery 25%, Proposal 50%, Negotiation 75%, Contract Sent 90%. Change stages and probabilities in <b>Settings → Pipelines</b>. The Forecast report groups open deals by expected close month into weighted, <i>commit</i> (75%+) and <i>best case</i> (50%+).</p>
+</div>
+
+<!-- ===================== 9 ===================== -->
+<div class="section" id="s9">
+  <div class="kicker">Chapter 9</div>
+  <h2>Products and quotes</h2>
+  <p class="lede">Keep a price list and send accurate quotes in minutes.</p>
+
+  <h3>Product catalog <span class="pill">Manager</span></h3>
+  <p><b>Products &amp; quotes → New product</b>: name, SKU, unit price, description and Active. Inactive products stay on old quotes but can’t be added to new ones. The page also lists the most recent quotes across all deals.</p>
+
+  <h3>Build a quote</h3>
+  <ol class="steps">
+    <li>Open a deal → <b>Quotes</b> tab → <b>New quote</b>.</li>
+    <li>For each line, pick a product (name and price fill in) or choose <i>Custom item</i>; set quantity, unit price and a line discount %. <b>Add line</b> for more.</li>
+    <li>Set tax %, an overall discount amount, the valid-until date (default 30 days), status and notes/terms. Totals update as you type.</li>
+    <li>Click <b>Create quote</b>. Quotes are numbered Q-0001, Q-0002… per organization.</li>
+  </ol>
+  <table>
+    <tr><th style="width:30%">Total</th><th>Formula</th></tr>
+    <tr><td>Line total</td><td>quantity × unit price − line discount %</td></tr>
+    <tr><td>Subtotal</td><td>sum of line totals</td></tr>
+    <tr><td>Tax</td><td>(subtotal − discount) × tax %</td></tr>
+    <tr><td>Total</td><td>subtotal − discount + tax</td></tr>
+  </table>
+  <ul>
+    <li><b>Mark accepted</b> sets the quote to Accepted and updates the deal’s value to the quote total.</li>
+    <li><b>PDF</b> opens a clean printable quote; click <b>Print / Save as PDF</b> and choose “Save as PDF”.</li>
+    <li>Click a quote number to edit it.</li>
+  </ul>
+</div>
+
+<!-- ===================== 10 ===================== -->
+<div class="section" id="s10">
+  <div class="kicker">Chapter 10</div>
+  <h2>Activities and tasks</h2>
+  <p class="lede">Record every interaction and never miss a follow-up.</p>
+
+  <h3>Log an activity</h3>
+  <ol class="steps">
+    <li>On any record click <b>Log call</b>, or ⋯ → <b>Log meeting</b> / <b>Add note</b>. Switch type with the Call / Meeting / Note buttons in the dialog.</li>
+    <li>Enter a subject and details. For calls, choose an outcome (connected, left voicemail, no answer, wrong number, scheduled meeting) and a duration.</li>
+    <li>To <b>schedule</b> a future call or meeting, fill in <i>Scheduled for</i>. It appears on the calendar and in the timeline with its time, and gets a <b>Mark done</b> button.</li>
+  </ol>
+  <p>Logging a completed call, email or meeting automatically updates the contact’s <i>last contacted</i> date, the deal’s last activity (which clears “gone quiet” risk), and a lead’s first response and score.</p>
+
+  <h3>Tasks</h3>
+  <ul>
+    <li>Create tasks from any record (<b>Task</b> button), from + New → Task, the Tasks page, a calendar day, or a dashboard action. Fields: title, due date, priority (low, medium, high, urgent), status (to do, in progress, done), assignee, <b>Remind me at</b> and notes.</li>
+    <li><b>Tasks page</b> views: <b>Overdue</b> (red count badge), <b>Today</b>, <b>Upcoming</b>, <b>All open</b> and <b>Completed</b>. Filter by priority; managers can switch between <i>My tasks</i> and <i>Team tasks</i>.</li>
+    <li>Tick the box to complete a task; an <b>Undo</b> button appears in the confirmation. Click a task’s title to edit it.</li>
+    <li>Overdue due dates are shown in red. Reminders arrive in the notification bell at the time you set.</li>
+    <li>Assigning a task to someone else notifies them.</li>
+  </ul>
+</div>
+
+<!-- ===================== 11 ===================== -->
+<div class="section" id="s11">
+  <div class="kicker">Chapter 11</div>
+  <h2>Calendar</h2>
+  <p class="lede">See scheduled meetings, calls and task deadlines together.</p>
+  <ul>
+    <li><b>Month</b>, <b>Week</b> and <b>Day</b> views; arrows move backward and forward and <b>Today</b> returns to the current date.</li>
+    <li><b>Mine</b> shows your own items; <b>Team</b> shows everything you’re allowed to see.</li>
+    <li>Items are colour-coded by type (meeting, call, task). Click one to open its deal or contact. In Month view, click a date to open its Day view, or the <b>+</b> on a day to add a task due that day.</li>
+    <li><b>Schedule meeting</b> logs a meeting with a date and time; <b>Task</b> adds a task.</li>
+  </ul>
+</div>
+
+<!-- ===================== 12 ===================== -->
+<div class="section" id="s12">
+  <div class="kicker">Chapter 12</div>
+  <h2>Inbox, email and templates</h2>
+  <p class="lede">Write personalised emails from the CRM and keep them threaded on the right records.</p>
+
+  <h3>Send an email</h3>
+  <ol class="steps">
+    <li>Click <b>Email</b> on a contact, lead, deal or ticket (the recipient is filled in), or <b>Compose</b> in the Inbox.</li>
+    <li>Optionally pick a <b>Template</b>; its subject and body fill in.</li>
+    <li>Use <b>Insert merge tag</b> to personalise. <b>Preview</b> shows the email with real values.</li>
+    <li>Click <b>Send</b>. The email is saved on the timeline of every linked record and appears in <b>Inbox → Sent</b>.</li>
+  </ol>
+  <table>
+    <tr><th style="width:32%">Merge tag</th><th>Replaced with</th></tr>
+    <tr><td><code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{full_name}}</code></td><td>The contact’s name</td></tr>
+    <tr><td><code>{{email}}</code> <code>{{title}}</code></td><td>Recipient email, job title</td></tr>
+    <tr><td><code>{{company_name}}</code></td><td>The contact’s or deal’s company</td></tr>
+    <tr><td><code>{{deal_title}}</code> <code>{{deal_value}}</code></td><td>The linked deal</td></tr>
+    <tr><td><code>{{sender_name}}</code> <code>{{sender_email}}</code></td><td>You</td></tr>
+  </table>
+
+  <h3>Templates</h3>
+  <p><b>Inbox → Templates → New template</b>: name, subject and body with merge tags. Managers can share templates with the whole team; everyone can create personal ones.</p>
+
+  <div class="note"><b>Email delivery</b>Out of the box, Nexora runs in development mode: emails are recorded in the CRM but not actually delivered (you’ll see “Email logged (dev mode)”). Your administrator connects a real mail service (SMTP, SES, Resend…) to send them.</div>
+</div>
+
+<!-- ===================== 13 ===================== -->
+<div class="section" id="s13">
+  <div class="kicker">Chapter 13</div>
+  <h2>Support tickets</h2>
+  <p class="lede">Handle customer issues against a service-level deadline.</p>
+  <ul>
+    <li><b>Create</b>: + New → Ticket, the Tickets page, or <b>New ticket</b> on a contact. Fields: subject, contact, assignee, priority, status, channel (email, phone, chat, web) and description. Tickets are numbered #1, #2… per organization.</li>
+    <li><b>SLA deadline</b> is set from priority. Changing priority recalculates it.</li>
+  </ul>
+  <table>
+    <tr><th>Priority</th><th>Urgent</th><th>High</th><th>Normal</th><th>Low</th></tr>
+    <tr><td>Resolve within</td><td>4 hours</td><td>8 hours</td><td>24 hours</td><td>72 hours</td></tr>
+  </table>
+  <ul>
+    <li>The list is sorted by SLA, with a live timer: grey normally, amber within 2 hours, red once breached. Resolved tickets show <i>SLA met</i> or <i>Resolved late</i>.</li>
+    <li><b>Statuses:</b> Open → Pending → Resolved → Closed. Change status, priority and assignee from the ticket page or inline in the list.</li>
+    <li>The first logged reply (call, email, meeting) or status change records the <b>first response</b> time.</li>
+    <li>The <b>Conversation</b> tab holds every interaction; the <b>Tasks</b> tab holds follow-ups.</li>
+    <li>Assignees are notified of new tickets and of SLAs due within the hour or breached. Tickets also appear on the contact’s 360° page.</li>
+  </ul>
+</div>
+
+<!-- ===================== 14 ===================== -->
+<div class="section" id="s14">
+  <div class="kicker">Chapter 14</div>
+  <h2>Campaigns</h2>
+  <p class="lede">Measure which marketing spend turns into revenue.</p>
+  <ol class="steps">
+    <li><b>New campaign</b> <span class="pill">Manager</span>: name, channel (email, social, paid search, events, content, webinar, partner), status, start/end dates, budget and description.</li>
+    <li>Attribute results by choosing the campaign on a <b>lead</b> or a <b>deal</b>. Deals created by converting a lead inherit its campaign.</li>
+    <li>Each campaign card shows leads, deals won, revenue, budget, <b>cost per lead</b> (budget ÷ leads), <b>ROI</b> ((won revenue − budget) ÷ budget) and lead conversion. Totals across campaigns appear at the top.</li>
+    <li>Click a campaign’s name to see its leads ranked by score.</li>
+  </ol>
+</div>
+
+<!-- ===================== 15 ===================== -->
+<div class="section" id="s15">
+  <div class="kicker">Chapter 15</div>
+  <h2>Reports</h2>
+  <p class="lede">Ready-made analytics plus a builder for your own questions.</p>
+
+  <h3>Pre-built reports</h3>
+  <p>Pick a date range (last 30 days, this quarter, this year, last 12 months). Every report has a <b>CSV</b> button; <b>Export PDF</b> prints the page.</p>
+  <table>
+    <tr><th style="width:26%">Report</th><th>Answers</th></tr>
+    <tr><td>Sales by rep</td><td>Deals won, revenue, win rate, average deal, open and weighted pipeline, activity count and quota attainment per person.</td></tr>
+    <tr><td>Pipeline health</td><td>Per stage: deals, value, average days in stage, stalled deals and overdue close dates.</td></tr>
+    <tr><td>Conversion funnel</td><td>Leads created → contacted → qualified → converted → won.</td></tr>
+    <tr><td>Activity report</td><td>Calls, emails, meetings and notes per rep.</td></tr>
+    <tr><td>Forecast</td><td>Open deals by expected close month: weighted, commit and best case.</td></tr>
+    <tr><td>Lost-reason analysis</td><td>Why deals were lost, by count and value.</td></tr>
+  </table>
+
+  <h3>Report builder</h3>
+  <ol class="steps">
+    <li>Choose the <b>records</b>: deals, leads, contacts, companies, activities, tasks or tickets.</li>
+    <li>Choose the <b>metric</b>: count, sum or average (of a numeric field such as deal value, probability, lead score or call duration).</li>
+    <li>Choose <b>Group by</b>, e.g. stage, owner, source, status, industry, month created or month closed.</li>
+    <li>Optionally restrict the created date and add <b>filters</b> (field, operator, value).</li>
+    <li>Pick a <b>chart</b>: bar, line, donut or table, then <b>Run</b>. Results show a chart and a table; <b>CSV</b> exports them.</li>
+  </ol>
+
+  <h3>Saved and scheduled reports <span class="pill">Manager</span></h3>
+  <p><b>Save</b> a builder report with a name, and optionally a daily, weekly or monthly <b>email schedule</b> with recipients. <b>Saved reports</b> lets you run, email now or delete them.</p>
+</div>
+
+<!-- ===================== 16 ===================== -->
+<div class="section" id="s16">
+  <div class="kicker">Chapter 16</div>
+  <h2>Automations</h2>
+  <p class="lede">“When this happens, if these conditions are true, do that.” Let Nexora handle the busywork.</p>
+
+  <h3>Build a workflow <span class="pill">Manager</span></h3>
+  <ol class="steps">
+    <li><b>Automations → New workflow</b>, or start from a <b>recipe</b>.</li>
+    <li><b>1 · When</b> pick a trigger.</li>
+    <li><b>2 · Only if</b> (optional) add conditions on the record’s fields.</li>
+    <li><b>3 · Then</b> add one or more actions, run in order.</li>
+    <li>Save. Use the switch to pause or resume; <b>Runs</b> shows each run’s result (success, skipped, failed) and message.</li>
+  </ol>
+  <div class="grid2">
+    <div class="card"><h4>Triggers</h4>Deal is created · Deal moves to a stage · Deal is won · Deal is lost · Lead is created · Lead is converted · Contact is created · Ticket is created · Ticket status changes</div>
+    <div class="card"><h4>Condition operators</h4>Equals · Not equals · Greater than · Less than · Contains. Example: <i>stage name equals Negotiation</i>, <i>value greater than 50000</i>, <i>score greater than 69</i>.</div>
+    <div class="card"><h4>Actions</h4><b>Create task</b> (title with merge tags, due in N days, priority, assign to owner / owner’s manager / a person) · <b>Notify user</b> · <b>Assign owner</b> (a person, or round-robin/territory rules) · <b>Update field</b> (deal probability, lead status, contact lifecycle/status, ticket priority/status) · <b>Send email</b> from a template.</div>
+    <div class="card"><h4>Recipes</h4>Follow up when a deal reaches Negotiation · Alert the manager about big new deals · Fast-track hot inbound leads · Escalate urgent tickets · Kick off onboarding on win.</div>
+  </div>
+  <p style="margin-top:8pt">Built-in notifications also fire without any workflow: owners are told when someone else moves or closes their deal, and when records or tasks are assigned to them.</p>
+</div>
+
+<!-- ===================== 17 ===================== -->
+<div class="section" id="s17">
+  <div class="kicker">Chapter 17</div>
+  <h2>AI assistance</h2>
+  <p class="lede">Built-in guidance that points you at the right work.</p>
+  <table>
+    <tr><th style="width:30%">Feature</th><th>Where</th></tr>
+    <tr><td>Next-best actions</td><td>Dashboard “What to do next”, ranked by urgency and value (chapter 3).</td></tr>
+    <tr><td>Relationship summary</td><td>Top of every contact page: recent touchpoints, open deals and tickets, the next step.</td></tr>
+    <tr><td>Lead scoring assist</td><td>Lead page: score breakdown and a suggested next move.</td></tr>
+    <tr><td>Deal risk flags</td><td>Board cards, deal lists and deal pages (chapter 8).</td></tr>
+  </table>
+  <div class="note"><b>How it works</b>The current assistant is rule-based and runs entirely inside your CRM; no data is sent to an outside AI service. It can be upgraded to a language-model provider later without changing how you use it.</div>
+</div>
+
+<!-- ===================== 18 ===================== -->
+<div class="section" id="s18">
+  <div class="kicker">Chapter 18</div>
+  <h2>Settings and administration</h2>
+  <p class="lede">Everything under Settings. You only see the sections your role allows.</p>
+  <table>
+    <tr><th style="width:26%">Section</th><th>What you can do</th></tr>
+    <tr><td>Profile</td><td>Name, email, avatar URL; change password; Light / Dark / System theme. Available to everyone.</td></tr>
+    <tr><td>Organization</td><td>Organization name, default currency, currencies allowed on deals, fiscal-year start month, lead auto-assignment on/off and rule (round-robin or territory).</td></tr>
+    <tr><td>Users &amp; quotas</td><td>Add users with a temporary password; edit name, role, team, monthly quota, territory; deactivate. You can’t demote or deactivate yourself. Quotas drive quota attainment and coverage.</td></tr>
+    <tr><td>Teams</td><td>Create teams with a manager; members are assigned on the Users page.</td></tr>
+    <tr><td>Roles &amp; permissions</td><td>Tick which permissions Sales Reps and Managers have (Admins always have all). Enforced by the server on every request.</td></tr>
+    <tr><td>Pipelines</td><td>Create pipelines; edit stages (drag ⋮⋮ to reorder, rename, set win %, add or remove); make one the default; delete empty pipelines. A stage with deals in it can’t be removed until the deals are moved.</td></tr>
+    <tr><td>Custom fields</td><td>Add fields to contacts, companies, leads, deals or tickets: text, number, date, drop-down (with options) or checkbox, optionally required. They appear on forms and detail pages.</td></tr>
+    <tr><td>Tags</td><td>Create tags, change their colour, see how many contacts and companies use them, delete. Tags typed on a record are created automatically.</td></tr>
+    <tr><td>Lead capture &amp; API</td><td>Hosted form link, API endpoint, sample request, rotate key (chapter 5).</td></tr>
+    <tr><td>Audit log</td><td>Every create, update, delete, merge, import, export, sign-in and settings change, with who and when. Filter by record type and user; expand an entry to see the exact field changes.</td></tr>
+  </table>
+</div>
+
+<!-- ===================== 19 ===================== -->
+<div class="section" id="s19">
+  <div class="kicker">Chapter 19</div>
+  <h2>Roles and permissions</h2>
+  <p class="lede">What each role can see and do by default. Admins can adjust Reps and Managers in Settings → Roles.</p>
+
+  <h3>Who sees which records</h3>
+  <table>
+    <tr><th>Role</th><th>Records visible</th></tr>
+    <tr><td><b>Sales Rep</b></td><td>Only records they own (or tasks/tickets assigned to them).</td></tr>
+    <tr><td><b>Manager</b></td><td>Records owned by anyone in their team, plus unassigned records.</td></tr>
+    <tr><td><b>Admin / Executive</b></td><td>Everything in the organization.</td></tr>
+  </table>
+
+  <h3>Default permissions</h3>
+  <table>
+    <tr><th style="width:52%">Permission</th><th>Rep</th><th>Manager</th><th>Admin</th></tr>
+    <tr><td>Export records to CSV</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Delete records</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Import records from CSV</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Reassign record owners</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>View teammates’ records</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>View every record in the organization</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+    <tr><td>View team dashboards and reports</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Create and save custom reports</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Create and edit automations</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Manage the product catalog</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Manage shared email templates</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Create and edit campaigns</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Edit pipelines and stages</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+    <tr><td>Invite and manage users and teams</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+    <tr><td>Manage organization settings, fields and tags</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+    <tr><td>View the audit log</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+  </table>
+  <p>Everyone can create and edit records they can see, log activities, manage their own tasks, send email and create personal templates.</p>
+</div>
+
+<!-- ===================== 20 ===================== -->
+<div class="section" id="s20">
+  <div class="kicker">Chapter 20</div>
+  <h2>End-to-end walkthrough</h2>
+  <p class="lede">From an empty workspace to a won deal, a happy customer and a report, in about fifteen minutes.</p>
+
+  <h4>Set up (admin)</h4>
+  <ol class="steps">
+    <li>Sign up. In <b>Settings → Organization</b> set your currency and turn on lead auto-assignment.</li>
+    <li>In <b>Settings → Pipelines</b>, adjust stage names and win probabilities to match your sales process.</li>
+    <li>In <b>Settings → Users &amp; quotas</b>, add your reps with monthly quotas; create a team with a manager.</li>
+    <li>Add a few products in <b>Products &amp; quotes</b>, and an email template in <b>Inbox → Templates</b>.</li>
+    <li>In <b>Automations</b>, enable the recipe “Follow up when a deal reaches Negotiation”.</li>
+  </ol>
+
+  <h4>Win a customer (rep)</h4>
+  <ol class="steps" start="6">
+    <li>A prospect fills in your hosted form. The lead arrives scored, auto-assigned, and appears in the owner’s notifications and “What to do next”.</li>
+    <li>Open the lead, click <b>Log call</b> and record the conversation. The first response time is captured and the lead becomes <i>Contacted</i>.</li>
+    <li>Click <b>Convert</b>, keeping <i>Also create a deal</i>; set the value and expected close date.</li>
+    <li>On the board, drag the deal through Discovery and Proposal. In the deal’s <b>Quotes</b> tab, build a quote from your products and click <b>PDF</b> to send it.</li>
+    <li>Drag the deal to <b>Negotiation</b>: the automation creates a “Send contract” task for the owner.</li>
+    <li>Use <b>Email</b> on the deal with your template to send the contract, then complete the task.</li>
+    <li>Mark the quote <b>accepted</b>, then click <b>Won</b>. The contact becomes a <i>Customer</i> and revenue appears on the dashboard.</li>
+  </ol>
+
+  <h4>Support and review</h4>
+  <ol class="steps" start="13">
+    <li>The customer reports an issue: create a <b>ticket</b> from their contact page. Work it before the SLA timer turns red, then resolve it.</li>
+    <li>Managers switch to the <b>Team dashboard</b> to check quota coverage, then open <b>Reports → Sales by rep</b> and <b>Pipeline health</b>.</li>
+    <li>Build a custom report (“sum of deal value by owner”), save it, and schedule it weekly to the leadership team.</li>
+  </ol>
+</div>
+
+<!-- ===================== 21 ===================== -->
+<div class="section" id="s21">
+  <div class="kicker">Chapter 21</div>
+  <h2>Shortcuts, tips and limits</h2>
+
+  <h3>Keyboard</h3>
+  <table>
+    <tr><th style="width:34%">Keys</th><th>Action</th></tr>
+    <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd></td><td>Open search and quick actions</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>Enter</kbd></td><td>Move through and open search results</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Close a dialog, menu or the search</td></tr>
+    <tr><td><kbd>Tab</kbd> / <kbd>Space</kbd> / arrows</td><td>Everything, including board cards, can be operated from the keyboard</td></tr>
+    <tr><td><kbd>Enter</kbd> or <kbd>,</kbd> in Tags</td><td>Add a tag; <kbd>Backspace</kbd> removes the last one</td></tr>
+  </table>
+
+  <h3>Tips</h3>
+  <ul>
+    <li>Start each day on the dashboard’s <b>What to do next</b> list; it is ordered for you.</li>
+    <li>Set an <b>expected close date</b> on every deal; it removes a risk flag and powers the forecast.</li>
+    <li>Log every touchpoint; it keeps deals out of “gone quiet” and improves lead scores.</li>
+    <li>Save the filters you use daily as <b>views</b>, and share useful ones with your team.</li>
+    <li>Use <b>Dark</b> mode from the avatar menu for late sessions; the CRM works on phones and tablets too.</li>
+  </ul>
+
+  <h3>Current limits</h3>
+  <table>
+    <tr><th style="width:30%">Area</th><th>Status</th></tr>
+    <tr><td>Email delivery</td><td>Recorded but not delivered until a mail provider is connected; no inbound email or reply threading yet.</td></tr>
+    <tr><td>Scheduled report emails</td><td>Run on schedule but use the same not-yet-connected mail provider.</td></tr>
+    <tr><td>AI</td><td>Rule-based assistant; no language model.</td></tr>
+    <tr><td>PDF quotes</td><td>Created with the browser’s “Save as PDF”.</td></tr>
+    <tr><td>Multi-currency</td><td>Deals store their currency, but totals don’t convert exchange rates.</td></tr>
+    <tr><td>File uploads</td><td>Up to 10 MB per file. CSV import up to 5,000 rows at a time.</td></tr>
+  </table>
+
+  <h3>Troubleshooting</h3>
+  <ul>
+    <li><b>“You don’t have permission to do that”</b>: your role lacks the permission (chapter 19); ask an admin.</li>
+    <li><b>A record has vanished</b>: it may be owned by someone outside your view, or deleted. Admins can check the audit log.</li>
+    <li><b>“Can’t reach the server right now”</b>: the server is restarting or offline; click <b>Try again</b>.</li>
+    <li><b>Can’t remove a stage or pipeline</b>: move its deals to another stage first.</li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nexora CRM — The Illustrated Beginner’s Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap">
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  @page :first { margin: 0; }
+  :root { --ink: #22272e; --muted: #687076; --indigo: #6366f1; --indigo-d: #4346c8; --rule: #e6e6ea; --soft: #f5f5f7; --tint: #eef0ff; --mark: #f43f5e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 10pt; line-height: 1.58; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1, h2, h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+  h2 { font-size: 28pt; line-height: 1.02; margin: 0 0 3pt; }
+  h3 { font-size: 16pt; margin: 14pt 0 3pt; page-break-after: avoid; }
+  h4 { font-size: 10pt; font-weight: 600; margin: 10pt 0 3pt; page-break-after: avoid; }
+  p { margin: 0 0 6pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 15pt; }
+  li { margin: 1.5pt 0; }
+  b { font-weight: 600; }
+  code, kbd { font-family: Consolas, monospace; font-size: 8.6pt; background: var(--soft); border: 1px solid var(--rule); border-radius: 3px; padding: 0 3px; }
+  a { color: var(--indigo-d); text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 5pt 0 9pt; font-size: 9pt; page-break-inside: avoid; }
+  th { text-align: left; font-weight: 600; background: var(--soft); border-bottom: 1px solid #d9d9de; padding: 4pt 6pt; }
+  td { border-bottom: 1px solid var(--rule); padding: 3pt 6pt; vertical-align: top; }
+  .chapter { page-break-before: always; }
+  .kicker { font-size: 8pt; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--indigo); }
+  .lede { color: var(--muted); font-size: 10.5pt; margin-bottom: 8pt; }
+  figure { margin: 8pt 0 10pt; page-break-inside: avoid; }
+  figure img { width: 100%; max-height: 205mm; object-fit: contain; object-position: left top; border: 1px solid #d8d8de; border-radius: 6px; display: block; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  figure.half img { max-height: 100mm; }
+  figure.small img { max-height: 82mm; }
+  figure.phone { display: flex; gap: 10pt; }
+  figure.phone img { width: auto; height: 100mm; }
+  figcaption { font-size: 8.4pt; color: var(--muted); margin-top: 3pt; }
+  .legend { list-style: none; padding: 0; margin: 4pt 0 10pt; }
+  .legend li { position: relative; padding-left: 24pt; margin: 3.5pt 0; page-break-inside: avoid; }
+  .legend li::before { content: attr(data-n); position: absolute; left: 0; top: 0.5pt; width: 16pt; height: 16pt; border-radius: 50%; background: var(--mark); color: #fff; font: 700 8pt/16pt Arial, sans-serif; text-align: center; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 21pt; margin: 3.5pt 0; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.5pt; width: 15pt; height: 15pt; border-radius: 50%; background: var(--ink); color: #fff; font: 600 7.8pt/15pt Inter, sans-serif; text-align: center; }
+  .tip, .note, .rookie { padding: 6pt 9pt; margin: 8pt 0 10pt; border-radius: 0 5px 5px 0; page-break-inside: avoid; }
+  .tip { border-left: 3px solid var(--indigo); background: var(--tint); }
+  .note { border-left: 3px solid #c9a227; background: #fbf6e6; }
+  .rookie { border-left: 3px solid #10b981; background: #ecfdf5; }
+  .tip > b:first-child, .note > b:first-child, .rookie > b:first-child { display: block; margin-bottom: 1pt; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; }
+  .card { border: 1px solid var(--rule); border-radius: 6px; padding: 7pt 9pt; page-break-inside: avoid; }
+  .card h4 { margin-top: 0; }
+  .ok { color: #1c7c4b; font-weight: 600; } .no { color: #b3261e; }
+  .cover { height: 297mm; padding: 24mm 22mm; display: flex; flex-direction: column; background: linear-gradient(160deg, #fff 0%, #f3f3ff 55%, #e2e4ff 100%); page-break-after: always; }
+  .cover .logo { font-size: 15pt; font-weight: 600; } .cover .logo span { color: var(--indigo); }
+  .cover h1 { font-size: 54pt; line-height: .95; margin: 34mm 0 6pt; }
+  .cover h1 em { font-style: italic; }
+  .cover .sub { font-size: 12.5pt; color: var(--muted); max-width: 125mm; }
+  .cover img { margin-top: 12mm; width: 100%; border-radius: 8px; border: 1px solid #d6d8f2; box-shadow: 0 20px 50px -20px rgba(40,40,120,.35); }
+  .cover .meta { margin-top: auto; font-size: 9pt; color: var(--muted); border-top: 1px solid #d6d8f2; padding-top: 7pt; display: flex; justify-content: space-between; }
+  .toc { columns: 2; column-gap: 12mm; margin-top: 8pt; }
+  .toc a { display: block; padding: 2.5pt 0; border-bottom: 1px dotted #d0d0d6; color: var(--ink); break-inside: avoid; }
+  .toc a span { color: var(--indigo); font-weight: 600; display: inline-block; width: 20pt; }
+  .gloss td:first-child { font-weight: 600; width: 22%; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="logo"><span>✦</span> Nexora</div>
+  <h1>Nexora CRM<br><em>The Illustrated Beginner’s Guide</em></h1>
+  <p class="sub">Every screen, every button, explained with screenshots, written for people using a CRM for the first time.</p>
+  <img src="guide-images/dashboard-kpis.jpg" alt="">
+  <div class="meta"><span>Version 1.0 · October 2026</span><span>Screenshots use a demo company, “Northwind Demo”</span></div>
+</section>
+
+<!-- CONTENTS -->
+<section>
+  <div class="kicker">Contents</div>
+  <h2>What’s inside</h2>
+  <div class="toc">
+    <a href="#c0"><span>0</span>How to read this guide</a>
+    <a href="#c1"><span>1</span>CRM in plain English</a>
+    <a href="#c2"><span>2</span>Signing up and signing in</a>
+    <a href="#c3"><span>3</span>Your first five minutes</a>
+    <a href="#c4"><span>4</span>The screen layout</a>
+    <a href="#c5"><span>5</span>Search, New, notifications, menu</a>
+    <a href="#c6"><span>6</span>The dashboard</a>
+    <a href="#c7"><span>7</span>Lists: search, filter, sort, bulk</a>
+    <a href="#c8"><span>8</span>Contacts</a>
+    <a href="#c9"><span>9</span>A contact’s 360° page</a>
+    <a href="#c10"><span>10</span>Logging calls, emails and tasks</a>
+    <a href="#c11"><span>11</span>Companies</a>
+    <a href="#c12"><span>12</span>Leads</a>
+    <a href="#c13"><span>13</span>Deals: the pipeline board</a>
+    <a href="#c14"><span>14</span>A deal’s page</a>
+    <a href="#c15"><span>15</span>Products and quotes</a>
+    <a href="#c16"><span>16</span>Tasks</a>
+    <a href="#c17"><span>17</span>Calendar</a>
+    <a href="#c18"><span>18</span>Inbox and email templates</a>
+    <a href="#c19"><span>19</span>Support tickets</a>
+    <a href="#c20"><span>20</span>Campaigns</a>
+    <a href="#c21"><span>21</span>Reports</a>
+    <a href="#c22"><span>22</span>Automations</a>
+    <a href="#c23"><span>23</span>Settings (for admins)</a>
+    <a href="#c24"><span>24</span>Roles: what each person can do</a>
+    <a href="#c25"><span>25</span>Dark mode, phones and tablets</a>
+    <a href="#c26"><span>26</span>A full day in Nexora</a>
+    <a href="#c27"><span>27</span>Troubleshooting and FAQ</a>
+  </div>
+
+  <h3 id="c0">How to read this guide</h3>
+  <ul>
+    <li>Every screenshot has <b>red numbered markers</b>. Under it, a list with the same red numbers tells you what each marked thing is and does.</li>
+    <li><b>Grey numbered lists</b> are step-by-step instructions: do them in order.</li>
+    <li>Boxes: <span style="color:#10b981;font-weight:600">green “Rookie tip”</span> for beginner advice, <span style="color:var(--indigo);font-weight:600">blue “Good to know”</span> for details, <span style="color:#a07c10;font-weight:600">yellow “Heads up”</span> for limits and permissions.</li>
+    <li>The screenshots come from a demo company, so names and numbers will differ from yours. <b>Your own account starts completely empty</b> (chapter 3).</li>
+  </ul>
+</section>
+
+<!-- 1 -->
+<section class="chapter" id="c1">
+  <div class="kicker">Chapter 1</div>
+  <h2>CRM in plain English</h2>
+  <p class="lede">A CRM (Customer Relationship Management) system is a shared address book and to-do list for everyone who talks to customers. It remembers every person, every conversation and every sale in progress, so nothing falls through the cracks.</p>
+
+  <h3>The words you’ll see everywhere</h3>
+  <table class="gloss">
+    <tr><th>Word</th><th>What it means</th><th>Example</th></tr>
+    <tr><td>Lead</td><td>Someone who <i>might</i> become a customer but hasn’t been checked out yet.</td><td>A person who filled in your website form.</td></tr>
+    <tr><td>Contact</td><td>A real person you do business with. Leads become contacts once they’re qualified.</td><td>Priya Shah, VP Operations at Acme.</td></tr>
+    <tr><td>Company</td><td>The organization a contact works for.</td><td>Acme Industries.</td></tr>
+    <tr><td>Deal</td><td>A sale you’re trying to win, with a value in money.</td><td>“Acme platform rollout — $48,000”.</td></tr>
+    <tr><td>Pipeline</td><td>The ordered steps a deal goes through until it’s won or lost.</td><td>Qualification → Discovery → Proposal → Negotiation → Contract Sent.</td></tr>
+    <tr><td>Stage</td><td>One step in the pipeline. Each has a <b>win probability</b> (how likely deals at that step are to close).</td><td>Proposal = 50%.</td></tr>
+    <tr><td>Weighted value</td><td>Deal value × win probability. A realistic forecast.</td><td>$48,000 at 50% = $24,000.</td></tr>
+    <tr><td>Activity</td><td>Something you did with a customer: a call, email, meeting or note.</td><td>“Discovery call, 30 min, connected”.</td></tr>
+    <tr><td>Task</td><td>Something you still need to do, with a due date.</td><td>“Send proposal by Friday”.</td></tr>
+    <tr><td>Ticket</td><td>A customer’s support request, with a deadline to resolve it (SLA).</td><td>“#12 Cannot export CSV — urgent”.</td></tr>
+    <tr><td>Quote</td><td>A priced offer sent to a customer, built from your products.</td><td>“Q-0001 — $52,800”.</td></tr>
+    <tr><td>Campaign</td><td>A marketing effort that brings in leads (webinar, ads, event).</td><td>“SaaS Summit booth”.</td></tr>
+    <tr><td>Owner</td><td>The team member responsible for a record.</td><td>Sam owns 10 deals.</td></tr>
+    <tr><td>Quota</td><td>A salesperson’s monthly revenue target.</td><td>$25,000 per month.</td></tr>
+  </table>
+
+  <h3>How it all connects</h3>
+  <p><b>Lead</b> → (you qualify and convert it) → <b>Contact</b> + <b>Company</b> + <b>Deal</b> → (you move the deal through <b>stages</b>, logging <b>activities</b> and doing <b>tasks</b>, maybe sending a <b>quote</b>) → <b>Won</b> 🎉 → the contact becomes a <b>Customer</b> → if they need help, they open a <b>Ticket</b>.</p>
+  <div class="rookie"><b>Rookie tip</b>You don’t have to use every feature on day one. Start with Contacts, Deals and Tasks. Add the rest once those feel natural.</div>
+</section>
+
+<!-- 2 -->
+<section class="chapter" id="c2">
+  <div class="kicker">Chapter 2</div>
+  <h2>Signing up and signing in</h2>
+  <p class="lede">The home page is where new people create an account and existing users sign in.</p>
+  <figure><img src="guide-images/landing.jpg" alt="Nexora home page"><figcaption>The Nexora home page.</figcaption></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Sign in</b>: for people who already have an account.</li>
+    <li data-n="2"><b>Book a demo</b>: opens the sign-up form to create a new account and workspace.</li>
+  </ol>
+  <figure class="small"><img src="guide-images/login.jpg" alt="Sign in page"><figcaption>The sign-in page.</figcaption></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Work email</b> you signed up with.</li>
+    <li data-n="2"><b>Password</b>.</li>
+    <li data-n="3"><b>Sign in</b> (or press <kbd>Enter</kbd>).</li>
+    <li data-n="4"><b>Create an account</b> if you don’t have one yet.</li>
+  </ol>
+  <h3>Create an account</h3>
+  <figure class="small"><img src="guide-images/signup.jpg" alt="Sign up page"></figure>
+  <ol class="steps">
+    <li>Fill in your full name, company name, work email and a password (at least 8 characters).</li>
+    <li>Click <b>Create account</b>. You’re signed in straight away.</li>
+    <li>You become the <b>Admin</b> (the boss account) of a brand-new, empty workspace for your company.</li>
+  </ol>
+  <div class="tip"><b>Good to know</b>If a colleague already uses Nexora, don’t sign up separately: ask your admin to add you (chapter 23). Signing up always creates a <i>new, separate</i> company workspace.</div>
+</section>
+
+<!-- 3 -->
+<section class="chapter" id="c3">
+  <div class="kicker">Chapter 3</div>
+  <h2>Your first five minutes</h2>
+  <p class="lede">A brand-new account is completely empty: no sample contacts, deals or numbers. Nexora shows a checklist to get you going.</p>
+  <figure><img src="guide-images/empty-dashboard.jpg" alt="Empty dashboard with welcome checklist"><figcaption>What a new account’s dashboard looks like.</figcaption></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Welcome to your new CRM</b>: five shortcut buttons. Click any of them to jump straight to that step: add a contact, create a deal, capture leads, invite your team, automate a follow-up. The checklist disappears once you add your first contact, deal or lead.</li>
+  </ol>
+  <p>All numbers show <b>$0</b> and <b>0%</b>, and charts show friendly “nothing yet” messages. That’s normal and fills in as you work.</p>
+  <figure class="half"><img src="guide-images/empty-contacts.jpg" alt="Empty contacts page"><figcaption>An empty list always tells you how to add your first record.</figcaption></figure>
+  <ol class="legend"><li data-n="1"><b>Add contact</b>: creates your first contact. Every empty list has a similar button.</li></ol>
+  <div class="rookie"><b>Rookie tip</b>The only thing a new account contains is one empty pipeline called <i>Sales Pipeline</i> with five stages, because deals need somewhere to live. You can rename or change the stages later (chapter 23).</div>
+</section>
+
+<!-- 4 -->
+<section class="chapter" id="c4">
+  <div class="kicker">Chapter 4</div>
+  <h2>The screen layout</h2>
+  <p class="lede">Every page has the same frame: a menu on the left, a toolbar along the top, and the page content in the middle.</p>
+  <figure><img src="guide-images/dashboard.jpg" alt="Full dashboard with all areas marked"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Sidebar menu</b>: every section of the CRM, grouped into Sales, Work, Service &amp; marketing and Insights. The highlighted item is the page you’re on. <b>Settings</b> and <b>Collapse</b> (shrinks the menu to icons) sit at the bottom.</li>
+    <li data-n="2"><b>Search or jump to…</b>: finds any record or page (chapter 5).</li>
+    <li data-n="3"><b>+ New</b>: create any kind of record from anywhere.</li>
+    <li data-n="4"><b>Bell</b>: your notifications. The red number is how many are unread.</li>
+    <li data-n="5"><b>Your avatar</b>: profile, settings, light/dark theme and sign out.</li>
+    <li data-n="6">–<b>15</b> are parts of the dashboard, explained in chapter 6.</li>
+  </ol>
+  <h3>The sidebar sections</h3>
+  <table>
+    <tr><th style="width:24%">Group</th><th>Pages</th></tr>
+    <tr><td>Sales</td><td><b>Leads</b> (possible customers), <b>Contacts</b> (people), <b>Companies</b>, <b>Deals</b> (sales in progress), <b>Products &amp; quotes</b>.</td></tr>
+    <tr><td>Work</td><td><b>Tasks</b> (your to-dos), <b>Calendar</b>, <b>Inbox</b> (emails you sent).</td></tr>
+    <tr><td>Service &amp; marketing</td><td><b>Tickets</b> (customer support), <b>Campaigns</b> (marketing).</td></tr>
+    <tr><td>Insights</td><td><b>Reports</b>, <b>Automations</b> (rules that do work for you).</td></tr>
+  </table>
+</section>
+
+<!-- 5 -->
+<section class="chapter" id="c5">
+  <div class="kicker">Chapter 5</div>
+  <h2>Search, New, notifications and your menu</h2>
+
+  <h3>Search everything (Ctrl + K)</h3>
+  <p>Click <b>Search or jump to…</b> or press <kbd>Ctrl</kbd> + <kbd>K</kbd> (<kbd>⌘</kbd> + <kbd>K</kbd> on a Mac).</p>
+  <div class="grid2">
+    <figure><img src="guide-images/command-palette-actions.jpg" alt="Command palette with quick actions"><figcaption>Before typing: quick actions and every page.</figcaption></figure>
+    <figure><img src="guide-images/command-palette.jpg" alt="Command palette search results"><figcaption>After typing “acme”: matching contacts, companies, deals…</figcaption></figure>
+  </div>
+  <ol class="steps">
+    <li>Type at least two letters of a name, email, company, deal title or ticket number.</li>
+    <li>Use the <kbd>↑</kbd> <kbd>↓</kbd> arrow keys to pick a result and <kbd>Enter</kbd> to open it, or click it.</li>
+    <li>With nothing typed, pick a <b>Quick action</b> (New deal, New contact…) or a page under <b>Go to</b>.</li>
+    <li>Press <kbd>Esc</kbd> to close.</li>
+  </ol>
+
+  <h3>Create anything: + New</h3>
+  <div class="grid2">
+    <figure><img src="guide-images/new-menu.jpg" alt="New menu"><figcaption>The + New menu.</figcaption></figure>
+    <figure><img src="guide-images/notifications.jpg" alt="Notifications"><figcaption>The notifications panel.</figcaption></figure>
+  </div>
+  <p><b>+ New</b> lets you add a Deal, Contact, Company, Lead, Task, Ticket or Campaign from any page. After you save, Nexora opens the record you just made.</p>
+
+  <h3>Notifications (the bell)</h3>
+  <p>You’re told when someone assigns you a record or task, moves or closes your deal, when a task reminder is due, when a support ticket is close to or past its deadline, and when an automation wants your attention. Unread items have a blue dot. Click one to open it, or click <b>Mark all read</b>. The list refreshes every 30 seconds.</p>
+
+  <h3>Your account menu</h3>
+  <figure class="half"><img src="guide-images/account-menu.jpg" alt="Account menu"></figure>
+  <p>Click your avatar (top right) to see your name, company and role, open <b>Profile</b> or <b>Settings</b>, switch the theme (<b>Light</b>, <b>Dark</b> or <b>System</b>, which follows your computer) and <b>Sign out</b>.</p>
+</section>
+
+<!-- 6 -->
+<section class="chapter" id="c6">
+  <div class="kicker">Chapter 6</div>
+  <h2>The dashboard</h2>
+  <p class="lede">Your home page answers two questions: <i>how are we doing?</i> and <i>what should I do next?</i> Look back at the big screenshot in chapter 4; the numbers below refer to it.</p>
+  <ol class="legend">
+    <li data-n="6"><b>My dashboard / Team dashboard</b>. <i>My</i> shows only your own work. <i>Team</i> shows your team (managers) or the whole company (admins). Sales reps only have <i>My</i>.</li>
+    <li data-n="7"><b>Date range</b>: This month, Last 30 days, This quarter, This year. Next to it (team view) you can also filter by <b>pipeline</b>, <b>owner</b>, <b>team</b> and <b>territory</b>.</li>
+    <li data-n="8"><b>Key numbers</b>: revenue won, open pipeline, win rate and quota attainment. The small arrow shows the change against the previous period: <span class="ok">green</span> is better, <span class="no">red</span> is worse.</li>
+    <li data-n="9"><b>Show all 10 metrics</b>: reveals six more numbers (below).</li>
+    <li data-n="10"><b>What to do next</b>: your most urgent work, ranked for you. The <b>Activity</b> tab shows what the team did recently.</li>
+    <li data-n="11"><b>Quota &amp; pipeline coverage</b>: how much of the target is met, and whether there are enough deals in progress to hit it.</li>
+    <li data-n="12"><b>Revenue over time</b>: running total of money won this period (solid) vs last period (dashed).</li>
+    <li data-n="13"><b>Pipeline by stage</b>: how many open deals sit in each stage (a funnel).</li>
+    <li data-n="14"><b>Deals by owner</b>: each person’s won (green) and open (blue) deal value.</li>
+    <li data-n="15"><b>Lead sources</b>: where this period’s new leads came from.</li>
+  </ol>
+
+  <h3>All 10 numbers explained</h3>
+  <figure class="half"><img src="guide-images/dashboard-kpis.jpg" alt="All ten metrics"></figure>
+  <table>
+    <tr><th style="width:26%">Number</th><th>What it tells you</th></tr>
+    <tr><td>Revenue won</td><td>Money from deals marked <i>Won</i> in the period.</td></tr>
+    <tr><td>Open pipeline</td><td>Total value of deals still in progress.</td></tr>
+    <tr><td>Win rate</td><td>Of the deals closed in the period, the share that were won.</td></tr>
+    <tr><td>Quota attainment</td><td>Revenue won as a % of the target (monthly quotas × months).</td></tr>
+    <tr><td>Weighted forecast</td><td>Realistic expected revenue: each open deal’s value × its chance of winning.</td></tr>
+    <tr><td>Avg deal size</td><td>Average value of deals won.</td></tr>
+    <tr><td>New leads</td><td>How many leads arrived in the period.</td></tr>
+    <tr><td>Lead conversion</td><td>Share of those leads that became contacts/deals.</td></tr>
+    <tr><td>Deal velocity</td><td>Average days from creating a deal to winning it (lower is better).</td></tr>
+    <tr><td>Lead response time</td><td>Average time before someone first contacted a new lead (lower is better).</td></tr>
+  </table>
+
+  <h3>“What to do next” in detail</h3>
+  <figure class="half"><img src="guide-images/dashboard-activity.jpg" alt="Team activity feed"><figcaption>The Activity tab: recent calls, emails, meetings and notes.</figcaption></figure>
+  <table>
+    <tr><th style="width:26%">Label</th><th>Why it appears</th></tr>
+    <tr><td>Support SLA</td><td>A support ticket has passed, or is within 4 hours of, its deadline.</td></tr>
+    <tr><td>Overdue task</td><td>A task’s due date has passed.</td></tr>
+    <tr><td>Closing soon</td><td>A deal is expected to close within 7 days.</td></tr>
+    <tr><td>Stalled deal</td><td>Nobody has touched a deal for 14 days or more.</td></tr>
+    <tr><td>At risk</td><td>A deal shows two or more warning signs (chapter 14).</td></tr>
+    <tr><td>Lead follow-up</td><td>A new lead has waited over an hour for a first response.</td></tr>
+  </table>
+  <p>Hover over an item to reveal shortcuts: <b>📞 Log a call</b> or <b>☑ Create follow-up task</b>.</p>
+  <div class="rookie"><b>Rookie tip</b>Start every morning by working down “What to do next” from the top. It is already sorted by urgency and deal size.</div>
+  <div class="note"><b>Heads up</b>The quota gauge only works once an admin sets monthly quotas for people (chapter 23). Coverage below 3× shows a warning: you probably need more deals to hit target.</div>
+</section>
+
+<!-- 7 -->
+<section class="chapter" id="c7">
+  <div class="kicker">Chapter 7</div>
+  <h2>Lists: search, filter, sort and bulk actions</h2>
+  <p class="lede">Leads, Contacts, Companies, Deals (list view), Tickets and Products all use the same kind of table. Learn it once and you know them all.</p>
+  <figure><img src="guide-images/contacts-list.jpg" alt="Contacts list"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Search</b>: type part of a name, email, phone or company. Results update as you type.</li>
+    <li data-n="2"><b>Filters</b>: narrow the list (by stage, owner, source, dates…).</li>
+    <li data-n="3"><b>Views</b>: save the current search and filters to reuse later.</li>
+    <li data-n="4"><b>⋯ More</b>: <i>Export CSV</i> (download to Excel) and <i>Import CSV</i> (upload many records at once).</li>
+    <li data-n="5"><b>Find duplicates</b> (contacts only, chapter 8).</li>
+    <li data-n="6"><b>New contact</b>: add one record by hand.</li>
+    <li data-n="7"><b>Column headers</b>: click one with ⇅ arrows to sort; click again to reverse.</li>
+    <li data-n="8"><b>Checkbox</b>: select rows for bulk actions. The box in the header selects the whole page.</li>
+    <li data-n="9"><b>Inline edit</b>: some columns are drop-downs. Change the value right in the table; it saves instantly.</li>
+    <li data-n="10"><b>Name</b>: click any row (or the name) to open the record.</li>
+  </ol>
+  <p>The bottom of the list shows “1–25 of 60” and arrows to page through 25 records at a time.</p>
+
+  <div class="grid2">
+    <figure><img src="guide-images/contacts-filters.jpg" alt="Filters panel"><figcaption>Filters. “Me” and “Unassigned” are handy owner choices.</figcaption></figure>
+    <figure><img src="guide-images/contacts-views.jpg" alt="Saved views panel"><figcaption>Saved views. Tick “Share with my team” to share.</figcaption></figure>
+  </div>
+  <h3>Bulk actions</h3>
+  <figure class="half"><img src="guide-images/contacts-bulk.jpg" alt="Bulk action bar"></figure>
+  <ol class="legend"><li data-n="1"><b>Bulk bar</b>: appears when rows are ticked. <b>Assign</b> them to someone, add a <b>Tag</b>, change a status/stage for all of them, or <b>Delete</b>. <b>Clear selection</b> unticks everything.</li></ol>
+
+  <h3>Import and export CSV</h3>
+  <div class="grid2">
+    <figure><img src="guide-images/contacts-more.jpg" alt="More menu"><figcaption>The ⋯ menu.</figcaption></figure>
+    <figure><img src="guide-images/contacts-import.jpg" alt="Import dialog"><figcaption>Import from CSV.</figcaption></figure>
+  </div>
+  <ol class="steps">
+    <li><b>Export:</b> ⋯ → <b>Export CSV</b> downloads exactly what you see (search and filters included). Opens in Excel or Google Sheets.</li>
+    <li><b>Import:</b> ⋯ → <b>Import CSV</b> → choose a file whose first row has column names (e.g. First name, Last name, Email, Company).</li>
+    <li>Check the preview of the first 5 rows, then click <b>Import</b> (up to 5,000 rows at a time).</li>
+    <li>Nexora reports how many were imported and lists any skipped rows with the reason (e.g. “Email: Enter a valid email”).</li>
+  </ol>
+  <div class="note"><b>Heads up</b>By default only managers and admins can import, delete in bulk and assign records to other people. Everyone can export.</div>
+</section>
+
+<!-- 8 -->
+<section class="chapter" id="c8">
+  <div class="kicker">Chapter 8</div>
+  <h2>Contacts</h2>
+  <p class="lede">Contacts are the people you do business with. The list works as described in chapter 7.</p>
+  <h3>Add a contact</h3>
+  <figure class="half"><img src="guide-images/contact-new.jpg" alt="New contact form"></figure>
+  <ol class="steps">
+    <li>Click <b>New contact</b> (or + New → Contact).</li>
+    <li>Only <b>First name</b> is required (marked with *). Add last name, email, phone and job title.</li>
+    <li><b>Company</b>: start typing and pick from the list. Add the company first if it’s not there.</li>
+    <li><b>Lifecycle stage</b> says how far along they are: Subscriber → Lead → MQL → SQL → Opportunity → <b>Customer</b> → Evangelist. Winning a deal moves the contact to Customer automatically.</li>
+    <li>Set the <b>owner</b> (you, by default), the <b>source</b> they came from, and <b>tags</b> (type a word, press <kbd>Enter</kbd>).</li>
+    <li>Click <b>Create contact</b>. Its 360° page opens.</li>
+  </ol>
+  <h3>Find and merge duplicates</h3>
+  <figure class="half"><img src="guide-images/contacts-duplicates.jpg" alt="Duplicates dialog"></figure>
+  <ol class="steps">
+    <li>On Contacts, click <b>Find duplicates</b>. Nexora groups people with the <b>same email</b> or the <b>same full name</b>.</li>
+    <li>“Keep” shows the oldest record. Click <b>Merge</b> beside a duplicate.</li>
+    <li>Everything attached to the duplicate (deals, activities, tasks, tickets, files, tags) moves to the kept contact, empty fields are filled in, and the duplicate is removed.</li>
+  </ol>
+  <div class="note"><b>Heads up</b>Merging happens immediately, with no “are you sure?” step. Double-check the two records first.</div>
+</section>
+
+<!-- 9 -->
+<section class="chapter" id="c9">
+  <div class="kicker">Chapter 9</div>
+  <h2>A contact’s 360° page</h2>
+  <p class="lede">Everything about one person on a single screen: details, company, deals, conversations, tasks, support tickets and files.</p>
+  <figure><img src="guide-images/contact-360.jpg" alt="Contact 360 page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>← Contacts</b>: back to the list.</li>
+    <li data-n="2"><b>Log call</b>: record a phone call (chapter 10).</li>
+    <li data-n="3"><b>Email</b>: write an email to this person.</li>
+    <li data-n="4"><b>Task</b>: create a to-do linked to this person.</li>
+    <li data-n="5"><b>⋯</b>: log a meeting, add a note, edit or delete.</li>
+    <li data-n="6"><b>AI summary</b>: a plain-English recap: when you last spoke, how often, open deals, open tickets and the next planned step.</li>
+    <li data-n="7"><b>About</b>: email (click to write), phone (click to call), owner, source, last contacted, tags and custom fields.</li>
+    <li data-n="8"><b>Company</b>: click to open the company page.</li>
+    <li data-n="9"><b>Files</b>: <b>Upload</b> documents (up to 10 MB each); click a name to download.</li>
+    <li data-n="10"><b>Tabs</b>: Timeline (all activity), Deals, Tasks, Emails and Tickets. Numbers show how many.</li>
+  </ol>
+  <div class="grid2">
+    <figure><img src="guide-images/record-more-menu.jpg" alt="More menu on a record"><figcaption>The ⋯ menu on a record.</figcaption></figure>
+    <figure><img src="guide-images/contact-deals-tab.jpg" alt="Deals tab"><figcaption>The Deals tab: <b>New deal</b> creates one already linked to this person.</figcaption></figure>
+  </div>
+  <div class="rookie"><b>Rookie tip</b>Before calling anyone, read their AI summary and timeline. You’ll know what was said last time in ten seconds.</div>
+</section>
+
+<!-- 10 -->
+<section class="chapter" id="c10">
+  <div class="kicker">Chapter 10</div>
+  <h2>Logging calls, emails, meetings, notes and tasks</h2>
+  <p class="lede">These buttons appear on every contact, company, lead, deal and ticket page. Whatever you log is saved on that record’s timeline.</p>
+  <h3>Log a call, meeting or note</h3>
+  <figure class="half"><img src="guide-images/log-activity.jpg" alt="Log call dialog"></figure>
+  <ol class="steps">
+    <li>Click <b>Log call</b> (or ⋯ → <i>Log meeting</i> / <i>Add note</i>). Switch between <b>Call</b>, <b>Meeting</b> and <b>Note</b> with the buttons at the bottom.</li>
+    <li>Type a <b>Subject</b> (e.g. “Discovery call”) and any <b>Details</b>.</li>
+    <li>For calls, choose the <b>Outcome</b> (connected, voicemail, no answer…) and <b>Duration</b> in minutes.</li>
+    <li>Planning something for later? Fill in <b>Scheduled for</b>. It then shows on the calendar with a <b>Mark done</b> button. Leave it empty if it already happened.</li>
+    <li>Click <b>Save</b>.</li>
+  </ol>
+  <div class="tip"><b>Good to know</b>Logging a call, email or meeting automatically updates the contact’s “last contacted” date, keeps the deal from being flagged as “gone quiet”, and for leads records the first response and raises their score.</div>
+
+  <h3>Write an email</h3>
+  <div class="grid2">
+    <figure><img src="guide-images/email-composer.jpg" alt="Email composer"><figcaption>The email composer with a template chosen.</figcaption></figure>
+    <figure><img src="guide-images/email-preview.jpg" alt="Email preview"><figcaption>Preview: merge tags replaced with real values.</figcaption></figure>
+  </div>
+  <ol class="legend">
+    <li data-n="1"><b>Insert merge tag</b>: adds a placeholder like <code>{{first_name}}</code> that becomes the real value when sent.</li>
+    <li data-n="2"><b>Preview</b>: shows exactly what the recipient will see.</li>
+    <li data-n="3"><b>Send</b>: sends it and saves it on the timeline and in your Inbox.</li>
+  </ol>
+  <p>Pick a <b>Template</b> at the top right to fill in the subject and body (chapter 18).</p>
+
+  <h3>Create a task</h3>
+  <figure class="half"><img src="guide-images/task-dialog.jpg" alt="New task dialog"></figure>
+  <p>Give it a title, <b>due date</b>, <b>priority</b> (low, medium, high, urgent), status and <b>assignee</b>. <b>Remind me at</b> sends a notification at that time. Tasks created from a record stay linked to it.</p>
+</section>
+
+<!-- 11 -->
+<section class="chapter" id="c11">
+  <div class="kicker">Chapter 11</div>
+  <h2>Companies</h2>
+  <p class="lede">The organizations your contacts work for and your deals are with.</p>
+  <figure class="half"><img src="guide-images/companies-list.jpg" alt="Companies list"><figcaption>The companies list shows how many contacts and deals each has.</figcaption></figure>
+  <figure><img src="guide-images/company-detail.jpg" alt="Company page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Deal</b>: start a new deal with this company already filled in.</li>
+    <li data-n="2"><b>About</b>: website, phone, address, owner, tags and custom fields.</li>
+    <li data-n="3"><b>People</b>: everyone who works there. <b>+ Add</b> creates a new contact at this company.</li>
+    <li data-n="4"><b>Tabs</b>: the company’s deals, timeline, tasks and tickets.</li>
+  </ol>
+  <p>The four numbers at the top give an instant health check: <b>open pipeline</b>, <b>won revenue</b>, <b>contacts</b> and <b>open tickets</b>.</p>
+  <div class="rookie"><b>Rookie tip</b>You rarely need to create companies by hand: converting a lead, or importing contacts with a “Company” column, creates them for you.</div>
+</section>
+
+<!-- 12 -->
+<section class="chapter" id="c12">
+  <div class="kicker">Chapter 12</div>
+  <h2>Leads</h2>
+  <p class="lede">Leads are possible customers you haven’t qualified yet. Nexora scores each one and can share them out across your team automatically.</p>
+  <figure><img src="guide-images/leads-list.jpg" alt="Leads list"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Open capture form</b> (admins): your public web form; anything submitted becomes a lead.</li>
+    <li data-n="2"><b>New lead</b>: add one by hand.</li>
+    <li data-n="3"><b>Score</b> (0–100): how promising the lead is. 🔥 70+ is hot, amber is warm, grey is cold.</li>
+    <li data-n="4"><b>Status</b>: New → Contacted → Qualified (or Unqualified). Change it inline.</li>
+    <li data-n="5"><b>First response</b>: amber “Waiting…” means nobody has contacted them yet.</li>
+  </ol>
+  <h3>The lead page</h3>
+  <figure><img src="guide-images/lead-detail.jpg" alt="Lead page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Convert</b>: turn the lead into a contact (and usually a deal).</li>
+    <li data-n="2"><b>Lead score</b>: the score, a bar, exactly where each point came from, and an AI suggestion for your next move.</li>
+    <li data-n="3"><b>Details</b>: contact info, source, campaign, owner, territory and when they were first contacted.</li>
+    <li data-n="4"><b>Tabs</b>: timeline and tasks for this lead.</li>
+  </ol>
+  <h3>How the score is calculated</h3>
+  <table>
+    <tr><th style="width:26%">Signal</th><th>Points</th></tr>
+    <tr><td>Where they came from</td><td>Referral 25 · Partner 20 · Webinar 18 · Event 15 · Website form/API 15 · Website 12 · Paid ads 10 · Social 8 · Cold outreach 5</td></tr>
+    <tr><td>Job title</td><td>Boss level (CEO, founder, VP…) 25 · Director/Head 18 · Manager/Lead 10 · other 3</td></tr>
+    <tr><td>Company size</td><td>1000+ 15 · 501–1000 13 · 201–500 12 · 51–200 10 · 11–50 6 · 1–10 3</td></tr>
+    <tr><td>Details given</td><td>Work email 6 (Gmail-type 3) · Phone 4 · Company 3 · Left a message 5</td></tr>
+    <tr><td>Engagement</td><td>+4 for every call, email or meeting you log, up to 20</td></tr>
+  </table>
+  <h3>Convert a lead</h3>
+  <figure class="half"><img src="guide-images/lead-convert.jpg" alt="Convert lead dialog"></figure>
+  <ol class="steps">
+    <li>On the lead page click <b>Convert</b>.</li>
+    <li>Keep <b>Also create a deal</b> ticked if there’s a real sales opportunity. Set the deal title, value, expected close date, pipeline and stage.</li>
+    <li>Click <b>Convert</b>. Nexora creates the <b>contact</b>, finds or creates the <b>company</b>, creates the <b>deal</b>, and moves the lead’s history over. You land on the new deal.</li>
+  </ol>
+  <div class="tip"><b>Good to know</b>Leads arriving through the web form are <b>assigned automatically</b>, taking turns among the sales reps (or by territory), and the new owner gets a notification. Admins choose the rule in Settings → Organization.</div>
+</section>
+
+<!-- 13 -->
+<section class="chapter" id="c13">
+  <div class="kicker">Chapter 13</div>
+  <h2>Deals: the pipeline board</h2>
+  <p class="lede">The board shows every open deal as a card in its stage column. Moving a card is how you show progress.</p>
+  <figure><img src="guide-images/deals-board.jpg" alt="Deals board"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Pipeline</b>: switch pipeline if your company has more than one (e.g. New Business vs Renewals).</li>
+    <li data-n="2"><b>Board / List</b>: choose cards or a table (your choice is remembered).</li>
+    <li data-n="3"><b>New deal</b>.</li>
+    <li data-n="4"><b>Filter deals</b>: type to show only matching cards.</li>
+    <li data-n="5"><b>Owner</b>: show everyone’s deals, only yours, or one person’s.</li>
+    <li data-n="6"><b>Totals</b>: open deals, total pipeline value and <b>weighted forecast</b> (realistic expected revenue).</li>
+    <li data-n="7"><b>Column header</b>: stage name, number of deals, total value, win probability and weighted value.</li>
+    <li data-n="8"><b>Deal card</b>: title, company, value, expected close date (red when overdue) and owner initials. Click the title to open it.</li>
+    <li data-n="9"><b>Risk flag</b>: amber <i>Watch</i> or red <i>At risk</i>. Hover to see why.</li>
+    <li data-n="10"><b>+ Add deal</b>: new deal starting in this stage.</li>
+  </ol>
+  <h3>Move a deal by dragging</h3>
+  <figure><img src="guide-images/deals-drag.jpg" alt="Dragging a deal card"><figcaption>While you drag, Won and Lost drop zones appear at the bottom.</figcaption></figure>
+  <ol class="steps">
+    <li>Press and hold on a card (anywhere except its title) and drag it to another column. Let go to drop it. It saves instantly.</li>
+    <li>Drop on <b>Won</b> to mark it won 🎉, or on <b>Lost</b>, where you’re asked for the reason.</li>
+    <li>If saving fails (for example, you lost internet), the card jumps back and an error appears.</li>
+  </ol>
+  <h3>List view</h3>
+  <figure><img src="guide-images/deals-list.jpg" alt="Deals list view"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Stage</b>: change the stage right in the table.</li>
+    <li data-n="2"><b>Weighted</b>: value × probability, with the % in brackets.</li>
+  </ol>
+</section>
+
+<!-- 14 -->
+<section class="chapter" id="c14">
+  <div class="kicker">Chapter 14</div>
+  <h2>A deal’s page</h2>
+  <figure><img src="guide-images/deal-detail.jpg" alt="Deal page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Stage path</b>: the deal’s journey. Click any stage to move it there. ✓ marks completed stages.</li>
+    <li data-n="2"><b>Won</b>: mark the deal won. Revenue appears on dashboards and the contact becomes a Customer.</li>
+    <li data-n="3"><b>Lost</b>: mark it lost and pick a reason. Closed deals show <b>Reopen</b> instead.</li>
+    <li data-n="4"><b>Risk card</b>: appears when something looks wrong, and says what.</li>
+    <li data-n="5"><b>Deal details</b>: value, weighted value, expected close, stage, contact, company, owner and dates.</li>
+    <li data-n="6"><b>Tabs</b>: Timeline, Tasks, Quotes and Stage history.</li>
+  </ol>
+  <h3>Warning signs (risk flags)</h3>
+  <table>
+    <tr><th>Sign</th><th>When it appears</th><th>How to clear it</th></tr>
+    <tr><td>No activity</td><td>Nothing logged for 14+ days</td><td>Log a call, email or meeting</td></tr>
+    <tr><td>Stuck in stage</td><td>Same stage for 21+ days</td><td>Move it forward (or close it)</td></tr>
+    <tr><td>Close date passed</td><td>Expected close date is in the past</td><td>Update the date or close the deal</td></tr>
+    <tr><td>Closing at low probability</td><td>Closing within 7 days at under 50%</td><td>Advance the stage or move the date</td></tr>
+    <tr><td>No close date</td><td>Expected close date is empty</td><td>Edit the deal and add one</td></tr>
+  </table>
+  <p>One sign = amber <b>Watch</b>. Two or more = red <b>At risk</b>.</p>
+  <div class="grid2">
+    <figure><img src="guide-images/deal-history.jpg" alt="Stage history"><figcaption>Stage history: who moved it, when, from where.</figcaption></figure>
+    <figure><img src="guide-images/deal-lost.jpg" alt="Mark as lost"><figcaption>Marking a deal lost asks for a reason.</figcaption></figure>
+  </div>
+  <p>Loss reasons: Price, Competitor, No budget, No decision, Timing, Missing features, Went silent, Other. The <b>Lost-reason</b> report (chapter 21) shows which ones hurt most.</p>
+</section>
+
+<!-- 15 -->
+<section class="chapter" id="c15">
+  <div class="kicker">Chapter 15</div>
+  <h2>Products and quotes</h2>
+  <p class="lede">Keep a price list, then build accurate quotes for a deal in a minute.</p>
+  <figure class="half"><img src="guide-images/products.jpg" alt="Products page"><figcaption>Products &amp; quotes: your catalog (left) and recent quotes (right).</figcaption></figure>
+  <p>Managers add products with <b>New product</b>: name, SKU (product code), unit price, description and whether it’s active.</p>
+  <h3>Make a quote</h3>
+  <figure class="half"><img src="guide-images/deal-quotes.jpg" alt="Quotes tab"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>New quote</b>: opens the quote editor.</li>
+    <li data-n="2"><b>Mark accepted</b>: the customer said yes. The deal’s value is updated to the quote total.</li>
+    <li data-n="3"><b>PDF</b>: opens a printable quote to save as PDF and send.</li>
+  </ol>
+  <figure class="half"><img src="guide-images/quote-editor.jpg" alt="Quote editor"></figure>
+  <ol class="steps">
+    <li>For each line, pick a <b>product</b> (name and price fill in) or <i>Custom item</i>. Set <b>quantity</b>, <b>unit price</b> and optional <b>discount %</b>. <b>Add line</b> for more.</li>
+    <li>Set <b>Tax %</b>, an overall <b>Discount</b> amount, <b>Valid until</b>, the status and any notes or terms.</li>
+    <li>The totals box updates as you type: <i>subtotal − discount + tax = total</i>.</li>
+    <li>Click <b>Create quote</b>. Quotes are numbered Q-0001, Q-0002…</li>
+  </ol>
+  <figure class="half"><img src="guide-images/quote-print.jpg" alt="Printable quote"><figcaption>The printable quote. Click Print / Save as PDF and choose “Save as PDF”.</figcaption></figure>
+</section>
+
+<!-- 16 -->
+<section class="chapter" id="c16">
+  <div class="kicker">Chapter 16</div>
+  <h2>Tasks</h2>
+  <p class="lede">Your personal to-do list for customer work, sorted by what’s due.</p>
+  <figure><img src="guide-images/tasks.jpg" alt="Tasks page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Views</b>: <i>Overdue</i> (red count), <i>Today</i>, <i>Upcoming</i>, <i>All open</i> and <i>Completed</i>.</li>
+    <li data-n="2"><b>Priority filter</b>: show only urgent, high… tasks.</li>
+    <li data-n="3"><b>My tasks / Team tasks</b> (managers and admins).</li>
+    <li data-n="4"><b>Checkbox</b>: tick to complete. An <b>Undo</b> button appears for a few seconds.</li>
+    <li data-n="5"><b>New task</b>.</li>
+  </ol>
+  <p>Click a task’s title to edit it. The small link under it opens the related deal or contact. Dates in <span class="no">red</span> are overdue.</p>
+  <div class="rookie"><b>Rookie tip</b>Every time you finish a call, create the next task before you hang up mentally: “Follow up Tuesday”. Deals rarely die when there’s always a next step.</div>
+</section>
+
+<!-- 17 -->
+<section class="chapter" id="c17">
+  <div class="kicker">Chapter 17</div>
+  <h2>Calendar</h2>
+  <figure><img src="guide-images/calendar-month.jpg" alt="Calendar month view"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Today</b>: jump back to today. The arrows beside it go backward and forward.</li>
+    <li data-n="2"><b>Mine / Team</b>: only your items, or everyone’s you’re allowed to see.</li>
+    <li data-n="3"><b>Month / Week / Day</b> views.</li>
+    <li data-n="4"><b>Schedule meeting</b>: log a future meeting with a date and time.</li>
+  </ol>
+  <p>Coloured chips: meetings (purple), calls (green), tasks (blue). Click a chip to open its deal or contact. In Month view, click a date number to see that day, or the small <b>+</b> on a day to add a task due that day.</p>
+  <figure class="half"><img src="guide-images/calendar-week.jpg" alt="Calendar week view"><figcaption>Week view.</figcaption></figure>
+</section>
+
+<!-- 18 -->
+<section class="chapter" id="c18">
+  <div class="kicker">Chapter 18</div>
+  <h2>Inbox and email templates</h2>
+  <figure class="half"><img src="guide-images/inbox-sent.jpg" alt="Inbox sent emails"><figcaption>Inbox → Sent: every email sent from Nexora. Click one on the left to read it on the right.</figcaption></figure>
+  <p>Use <b>Compose</b> (top right) to write a new email from here. The email is linked to the matching contact and deal.</p>
+  <h3>Templates</h3>
+  <figure class="half"><img src="guide-images/inbox-templates.jpg" alt="Email templates"></figure>
+  <ol class="steps">
+    <li>Inbox → <b>Templates</b> → <b>New template</b>.</li>
+    <li>Give it a name, subject and body. Use merge tags so each email is personal.</li>
+    <li>Managers can tick <b>Share with the whole team</b>; everyone can make personal templates.</li>
+  </ol>
+  <table>
+    <tr><th style="width:38%">Merge tag</th><th>Becomes</th></tr>
+    <tr><td><code>{{first_name}}</code> <code>{{last_name}}</code> <code>{{full_name}}</code></td><td>The person’s name</td></tr>
+    <tr><td><code>{{company_name}}</code> <code>{{title}}</code> <code>{{email}}</code></td><td>Their company, job title and email</td></tr>
+    <tr><td><code>{{deal_title}}</code> <code>{{deal_value}}</code></td><td>The linked deal</td></tr>
+    <tr><td><code>{{sender_name}}</code> <code>{{sender_email}}</code></td><td>You</td></tr>
+  </table>
+  <div class="note"><b>Heads up</b>Out of the box, emails are saved in Nexora but <b>not actually delivered</b> (you’ll see “Email logged (dev mode)”). Your administrator connects a real mail service to send them.</div>
+</section>
+
+<!-- 19 -->
+<section class="chapter" id="c19">
+  <div class="kicker">Chapter 19</div>
+  <h2>Support tickets</h2>
+  <p class="lede">When a customer needs help, create a ticket so it’s tracked against a deadline (the SLA, or service-level agreement).</p>
+  <figure><img src="guide-images/tickets-list.jpg" alt="Tickets list"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>SLA</b>: time left before the deadline. Grey = fine, amber = under 2 hours, red = missed (“Breached”).</li>
+    <li data-n="2"><b>Priority</b>: change inline. Higher priority means a shorter deadline.</li>
+    <li data-n="3"><b>Status</b>: Open → Pending (waiting on the customer) → Resolved → Closed.</li>
+  </ol>
+  <table>
+    <tr><th>Priority</th><th>Urgent</th><th>High</th><th>Normal</th><th>Low</th></tr>
+    <tr><td>Must be resolved within</td><td>4 hours</td><td>8 hours</td><td>24 hours</td><td>72 hours</td></tr>
+  </table>
+  <figure><img src="guide-images/ticket-detail.jpg" alt="Ticket page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Status</b> panel: live SLA timer, and drop-downs to change status, priority (recalculates the deadline) and assignee.</li>
+    <li data-n="2"><b>Customer</b>: contact, email, company, first-response and resolved times.</li>
+    <li data-n="3"><b>Conversation / Tasks</b>: every reply you log, and follow-ups.</li>
+  </ol>
+  <p>Reply using <b>Email</b> or <b>Log call</b> at the top. Your first reply records the “first response” time. Tickets also appear on the customer’s contact page.</p>
+</section>
+
+<!-- 20 -->
+<section class="chapter" id="c20">
+  <div class="kicker">Chapter 20</div>
+  <h2>Campaigns</h2>
+  <p class="lede">See which marketing efforts actually bring in money.</p>
+  <figure><img src="guide-images/campaigns.jpg" alt="Campaigns page"></figure>
+  <ol class="steps">
+    <li>Managers click <b>New campaign</b>: name, channel (email, social, paid search, events, content, webinar, partner), status, dates and budget.</li>
+    <li>When adding a lead or deal, choose the campaign it came from. Deals converted from a lead keep the lead’s campaign.</li>
+    <li>Each card then shows leads, deals won, revenue, budget, <b>cost per lead</b> (budget ÷ leads) and <b>ROI</b> ((revenue − budget) ÷ budget). Green ROI = it paid for itself.</li>
+  </ol>
+  <figure class="half"><img src="guide-images/campaign-leads.jpg" alt="Campaign leads panel"><figcaption>Click a campaign’s name to see its leads, best scores first.</figcaption></figure>
+</section>
+
+<!-- 21 -->
+<section class="chapter" id="c21">
+  <div class="kicker">Chapter 21</div>
+  <h2>Reports</h2>
+  <p class="lede">Six ready-made reports, plus a builder to answer your own questions. No spreadsheets needed.</p>
+  <figure><img src="guide-images/reports-prebuilt.jpg" alt="Pre-built reports"></figure>
+  <table>
+    <tr><th style="width:26%">Report</th><th>Answers the question…</th></tr>
+    <tr><td>Sales by rep</td><td>Who is winning, how much, at what win rate, and against quota?</td></tr>
+    <tr><td>Pipeline health</td><td>Where are deals piling up, getting old or slipping past their dates?</td></tr>
+    <tr><td>Conversion funnel</td><td>How many leads got contacted, qualified, converted and won?</td></tr>
+    <tr><td>Activity report</td><td>How many calls, emails, meetings and notes did each person log?</td></tr>
+    <tr><td>Forecast</td><td>How much will probably close each month (weighted, commit, best case)?</td></tr>
+    <tr><td>Lost-reason analysis</td><td>Why are we losing deals?</td></tr>
+  </table>
+  <p>Pick the date range at the top. Each report has a <b>CSV</b> button; <b>Export PDF</b> (top right) prints the whole page.</p>
+  <h3>Build your own report</h3>
+  <figure><img src="guide-images/reports-builder.jpg" alt="Report builder"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>Records</b>: what to count: deals, leads, contacts, companies, activities, tasks or tickets. Then choose the <b>Metric</b>: count, sum or average.</li>
+    <li data-n="2"><b>Group by</b>: how to split the result (by stage, owner, source, month…).</li>
+    <li data-n="3"><b>Add filter</b>: e.g. <i>status equals won</i>.</li>
+    <li data-n="4"><b>Run</b>: shows a chart and a table.</li>
+    <li data-n="5"><b>Save</b> (managers): keep it, and optionally email it daily, weekly or monthly.</li>
+  </ol>
+  <figure class="half"><img src="guide-images/reports-saved.jpg" alt="Saved reports"><figcaption>Saved reports: Run, Email now or delete.</figcaption></figure>
+</section>
+
+<!-- 22 -->
+<section class="chapter" id="c22">
+  <div class="kicker">Chapter 22</div>
+  <h2>Automations</h2>
+  <p class="lede">Rules that work for you: <b>when</b> something happens, <b>if</b> conditions are true, <b>then</b> do something. For example, “when a deal reaches Negotiation, create a ‘Send contract’ task for its owner”.</p>
+  <figure><img src="guide-images/automations.jpg" alt="Automations page"></figure>
+  <ol class="legend">
+    <li data-n="1"><b>New workflow</b>: build a rule from scratch (managers).</li>
+    <li data-n="2"><b>On/off switch</b>: pause or resume a rule.</li>
+    <li data-n="3"><b>Runs</b>: history of every time it ran and what happened.</li>
+    <li data-n="4"><b>Recipes</b>: ready-made rules. Click one, check it, save.</li>
+  </ol>
+  <figure class="half"><img src="guide-images/workflow-editor.jpg" alt="Workflow editor"></figure>
+  <div class="grid2">
+    <div class="card"><h4>1 · When (trigger)</h4>A deal is created / moves to a stage / is won / is lost · A lead is created / converted · A contact is created · A ticket is created / changes status.</div>
+    <div class="card"><h4>2 · Only if (optional)</h4>Field + operator (equals, not equals, greater than, less than, contains) + value. E.g. <i>Stage name equals Negotiation</i>, <i>Value greater than 50000</i>.</div>
+    <div class="card"><h4>3 · Then (actions)</h4><b>Create task</b> (for the owner, their manager or anyone) · <b>Notify user</b> · <b>Assign owner</b> · <b>Update field</b> · <b>Send email</b> from a template.</div>
+    <div class="card"><h4>Merge tags in actions</h4>Task titles and messages can include <code>{{name}}</code>, <code>{{company_name}}</code>, <code>{{full_name}}</code>, <code>{{stage}}</code>…</div>
+  </div>
+  <figure class="half"><img src="guide-images/workflow-runs.jpg" alt="Workflow run history"><figcaption>Run history: success, skipped (conditions not met) or failed, with a message.</figcaption></figure>
+</section>
+
+<!-- 23 -->
+<section class="chapter" id="c23">
+  <div class="kicker">Chapter 23</div>
+  <h2>Settings (mostly for admins)</h2>
+  <p class="lede">Open Settings from the bottom of the sidebar or your avatar menu. You only see the sections your role allows.</p>
+  <h3>Profile (everyone)</h3>
+  <figure class="half"><img src="guide-images/settings-profile.jpg" alt="Profile settings"></figure>
+  <p>Change your name, email and avatar picture link, your password (this signs you out on other devices) and the theme.</p>
+  <h3>Organization</h3>
+  <figure class="half"><img src="guide-images/settings-organization.jpg" alt="Organization settings"></figure>
+  <p>Company name, default currency, which currencies deals may use, the month your financial year starts, and how new web leads are assigned: <b>round-robin</b> (taking turns) or <b>by territory</b>.</p>
+  <h3>Users &amp; quotas</h3>
+  <figure class="half"><img src="guide-images/settings-users.jpg" alt="Users settings"></figure>
+  <ol class="steps">
+    <li><b>Add user</b>: name, email, role, a temporary password, monthly quota and territory. Share the password with them securely.</li>
+    <li><b>Edit</b> changes someone’s role, team, quota or territory, or deactivates them (they’re signed out immediately).</li>
+  </ol>
+  <figure class="half"><img src="guide-images/settings-user-edit.jpg" alt="Edit user"></figure>
+</section>
+
+<section class="chapter">
+  <h3>Teams</h3>
+  <figure class="half"><img src="guide-images/settings-teams.jpg" alt="Teams"></figure>
+  <p>Create teams and pick a manager. Managers can see their team’s records, tasks and the Team dashboard. Put people into teams from Users &amp; quotas.</p>
+  <h3>Roles &amp; permissions</h3>
+  <figure><img src="guide-images/settings-roles.jpg" alt="Roles and permissions matrix"></figure>
+  <p>Tick or untick what Sales Reps and Managers may do. Admins always have everything. The rules are enforced by the server, so hidden buttons are not the only protection.</p>
+</section>
+
+<section class="chapter">
+  <h3>Pipelines</h3>
+  <figure class="half"><img src="guide-images/settings-pipelines.jpg" alt="Pipelines settings"></figure>
+  <figure class="half"><img src="guide-images/settings-pipeline-editor.jpg" alt="Pipeline stage editor"></figure>
+  <ol class="steps">
+    <li><b>New pipeline</b> or <b>Edit stages</b> on an existing one.</li>
+    <li>Drag the <b>⋮⋮</b> handle to reorder stages, rename them and set each stage’s win %.</li>
+    <li><b>Add stage</b> or remove one with the bin icon. A stage that still has deals can’t be removed until they’re moved.</li>
+    <li><b>Make default</b> chooses which pipeline opens first.</li>
+  </ol>
+  <h3>Custom fields</h3>
+  <figure class="half"><img src="guide-images/settings-fields.jpg" alt="Custom fields"></figure>
+  <p>Add your own fields to contacts, companies, leads, deals or tickets: text, number, date, drop-down list or checkbox, optionally required. They appear on the forms and record pages automatically.</p>
+</section>
+
+<section class="chapter">
+  <h3>Tags</h3>
+  <figure class="half"><img src="guide-images/settings-tags.jpg" alt="Tags"></figure>
+  <p>Create tags, change their colour, see how often each is used, and delete unused ones. Tags typed on a record are created automatically.</p>
+  <h3>Lead capture &amp; API</h3>
+  <figure class="half"><img src="guide-images/settings-lead-capture.jpg" alt="Lead capture settings"></figure>
+  <p>Your <b>hosted form</b> link (share it or put it on your website), the <b>API endpoint</b> for developers, and an example request. <b>Rotate key</b> creates a new link and disables the old one.</p>
+  <figure class="half"><img src="guide-images/public-form.jpg" alt="Public lead form"><figcaption>What visitors see on your hosted form. Submissions become scored, auto-assigned leads.</figcaption></figure>
+</section>
+
+<section class="chapter">
+  <h3>Audit log</h3>
+  <figure><img src="guide-images/settings-audit.jpg" alt="Audit log"></figure>
+  <p>A permanent record of who did what and when: every create, update, delete, merge, import, export, sign-in and settings change. Filter by record type or person, and click the arrow on an entry to see exactly which fields changed, from what to what.</p>
+</section>
+
+<!-- 24 -->
+<section class="chapter" id="c24">
+  <div class="kicker">Chapter 24</div>
+  <h2>Roles: what each person can do</h2>
+  <table>
+    <tr><th>Role</th><th>Sees</th><th>Typical person</th></tr>
+    <tr><td><b>Sales Rep</b></td><td>Only their own records</td><td>Salespeople, support agents</td></tr>
+    <tr><td><b>Manager</b></td><td>Their team’s records plus unassigned ones</td><td>Team leads</td></tr>
+    <tr><td><b>Admin / Executive</b></td><td>Everything in the company</td><td>Owners, executives, ops</td></tr>
+  </table>
+  <figure class="half"><img src="guide-images/rep-dashboard.jpg" alt="Sales rep dashboard"><figcaption>A sales rep’s dashboard: only “My dashboard”, only their own numbers.</figcaption></figure>
+  <figure class="half"><img src="guide-images/rep-no-permission.jpg" alt="Not available message"><figcaption>Sections you can’t use say “Not available” instead of showing other people’s data.</figcaption></figure>
+  <h3>Default permissions</h3>
+  <table>
+    <tr><th style="width:55%">Permission</th><th>Rep</th><th>Manager</th><th>Admin</th></tr>
+    <tr><td>Export to CSV</td><td class="ok">✓</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Delete records · Import CSV · Reassign to others</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>See teammates’ records · Team dashboards &amp; reports</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Save custom reports · Automations · Products · Shared templates · Campaigns</td><td class="no">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>See every record in the company</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+    <tr><td>Pipelines · Users &amp; teams · Organization settings, fields, tags · Audit log</td><td class="no">—</td><td class="no">—</td><td class="ok">✓</td></tr>
+  </table>
+  <p>Everyone can create and edit the records they can see, log activities, manage their own tasks, send email and make personal templates. Admins can change these defaults (chapter 23).</p>
+</section>
+
+<!-- 25 -->
+<section class="chapter" id="c25">
+  <div class="kicker">Chapter 25</div>
+  <h2>Dark mode, phones and tablets</h2>
+  <figure class="half"><img src="guide-images/dark-dashboard.jpg" alt="Dark mode dashboard"><figcaption>Dark mode: avatar menu → Dark (or System to follow your computer).</figcaption></figure>
+  <figure class="phone"><img src="guide-images/mobile-dashboard.jpg" alt="Phone dashboard"><img src="guide-images/mobile-nav.jpg" alt="Phone menu"></figure>
+  <p>On a phone, the menu hides behind the <b>☰</b> button at the top left. Everything else works the same; tables scroll sideways inside their card.</p>
+  <div class="note"><b>Heads up</b>Dragging deal cards needs a mouse or long-press-and-drag. On phones it’s often easier to open the deal and tap a stage on its stage path.</div>
+</section>
+
+<!-- 26 -->
+<section class="chapter" id="c26">
+  <div class="kicker">Chapter 26</div>
+  <h2>A full day in Nexora</h2>
+  <p class="lede">Putting it all together, from first lead to happy customer.</p>
+  <h4>Morning</h4>
+  <ol class="steps">
+    <li>Open the <b>Dashboard</b>. Work down <b>What to do next</b>: overdue tasks, urgent tickets, deals closing this week.</li>
+    <li>Check the <b>bell</b> for new leads assigned to you overnight.</li>
+  </ol>
+  <h4>Working a new lead</h4>
+  <ol class="steps" start="3">
+    <li>Open the lead (🔥 hot ones first). Read its score breakdown and AI suggestion.</li>
+    <li>Call them, then <b>Log call</b>: outcome, notes. The lead becomes <i>Contacted</i>.</li>
+    <li>If there’s a real opportunity, click <b>Convert</b> with <i>Also create a deal</i>, and set the value and close date.</li>
+  </ol>
+  <h4>Moving a deal forward</h4>
+  <ol class="steps" start="6">
+    <li>On the <b>Deals</b> board, drag the deal to <b>Discovery</b> after your first proper meeting.</li>
+    <li>In the deal’s <b>Quotes</b> tab, build a quote from your products; open <b>PDF</b> and send it. Drag the deal to <b>Proposal</b>.</li>
+    <li>Use <b>Email</b> with a template to follow up. Add a <b>Task</b> “Check in on Friday”.</li>
+    <li>When they negotiate, drag to <b>Negotiation</b>. An automation can create your “Send contract” task.</li>
+    <li>They sign: <b>Mark accepted</b> on the quote, then <b>Won</b> 🎉. The contact becomes a Customer and the dashboard updates.</li>
+  </ol>
+  <h4>After the sale</h4>
+  <ol class="steps" start="11">
+    <li>The customer has a problem: create a <b>Ticket</b> from their contact page and resolve it before the SLA turns red.</li>
+    <li>End of week: managers open <b>Reports → Sales by rep</b> and <b>Pipeline health</b>, and the <b>Team dashboard</b> for quota coverage.</li>
+  </ol>
+</section>
+
+<!-- 27 -->
+<section class="chapter" id="c27">
+  <div class="kicker">Chapter 27</div>
+  <h2>Troubleshooting and FAQ</h2>
+  <table>
+    <tr><th style="width:38%">Problem</th><th>What to do</th></tr>
+    <tr><td>“You don’t have permission to do that”</td><td>Your role doesn’t include that action. Ask an admin (chapter 24).</td></tr>
+    <tr><td>I can’t find a record a colleague mentioned</td><td>Reps only see their own records. Ask the owner or a manager to reassign it to you.</td></tr>
+    <tr><td>“Can’t reach the server right now”</td><td>The server is restarting or offline. Click <b>Try again</b> after a moment.</td></tr>
+    <tr><td>My numbers are all zero</td><td>Check the date range and My/Team toggle. A new account starts empty.</td></tr>
+    <tr><td>The quota gauge says “No quota set”</td><td>An admin needs to set monthly quotas in Settings → Users &amp; quotas.</td></tr>
+    <tr><td>My email wasn’t received</td><td>Email delivery isn’t connected yet; the email is saved in Nexora only. Ask your admin.</td></tr>
+    <tr><td>Can’t delete a stage or pipeline</td><td>Move its deals to another stage first.</td></tr>
+    <tr><td>A deal shows “At risk”</td><td>Hover the flag to see why, then fix the cause (log activity, set a close date, move the stage).</td></tr>
+    <tr><td>Import skipped some rows</td><td>The import result lists each row and why (e.g. bad email). Fix the file and import just those rows again.</td></tr>
+  </table>
+  <h3>Keyboard shortcuts</h3>
+  <table>
+    <tr><th style="width:38%">Keys</th><th>Does</th></tr>
+    <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd></td><td>Search and quick actions</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd> then <kbd>Enter</kbd></td><td>Choose a search result</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Close a window, menu or search</td></tr>
+    <tr><td><kbd>Enter</kbd> or <kbd>,</kbd> in a Tags box</td><td>Add the tag (<kbd>Backspace</kbd> removes the last one)</td></tr>
+  </table>
+  <div class="rookie"><b>Last rookie tip</b>Three habits make a CRM useful: <b>log every conversation</b>, <b>always have a next task</b> on every open deal, and <b>keep close dates honest</b>. Everything else (dashboards, forecasts, AI hints) gets better automatically.</div>
+</section>
+
+</body>
+</html>

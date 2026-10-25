@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (HSL triplets). The core palette, fonts and dashboard shadow
+   follow the Nexora brand spec; success/warning/chart/sidebar tokens extend it
+   for the CRM app. Pairs are chosen for WCAG AA contrast. */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 14% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 14% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 14% 17%;
+    --primary: 210 14% 17%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 184 5% 55%;
+    --accent: 239 84% 67%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 66% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 40%;
+    --warning-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 86%;
+    --ring: 239 84% 67%;
+    --brand: 239 84% 67%;
+    --sidebar: 0 0% 99%;
+    --sidebar-foreground: 210 14% 30%;
+    --sidebar-accent: 239 84% 96%;
+    --sidebar-border: 0 0% 92%;
+    --chart-1: 239 84% 67%;
+    --chart-2: 160 70% 38%;
+    --chart-3: 32 95% 50%;
+    --chart-4: 280 65% 58%;
+    --chart-5: 350 80% 56%;
+    --chart-6: 190 80% 42%;
+    --radius: 0.5rem;
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+    --shadow-dashboard: 0 25px 80px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+  /* The app supports dark mode; the marketing page is light only. */
+  .dark {
+    --background: 220 16% 7%;
+    --foreground: 0 0% 94%;
+    --card: 220 14% 10%;
+    --card-foreground: 0 0% 94%;
+    --popover: 220 14% 11%;
+    --popover-foreground: 0 0% 94%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 210 14% 12%;
+    --secondary: 220 10% 16%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 220 10% 15%;
+    --muted-foreground: 184 5% 64%;
+    --accent: 239 84% 72%;
+    --accent-foreground: 224 40% 8%;
+    --destructive: 0 75% 62%;
+    --destructive-foreground: 224 40% 8%;
+    --success: 152 55% 52%;
+    --success-foreground: 224 40% 8%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 224 40% 8%;
+    --border: 220 10% 19%;
+    --input: 220 10% 25%;
+    --ring: 239 84% 72%;
+    --brand: 239 84% 72%;
+    --sidebar: 220 16% 8%;
+    --sidebar-foreground: 0 0% 78%;
+    --sidebar-accent: 239 40% 20%;
+    --sidebar-border: 220 10% 15%;
+    --chart-1: 239 84% 72%;
+    --chart-2: 158 60% 50%;
+    --chart-3: 38 92% 60%;
+    --chart-4: 275 70% 70%;
+    --chart-5: 350 85% 66%;
+    --chart-6: 190 75% 55%;
+    --shadow-dashboard: 0 25px 80px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  * { @apply border-border; }
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; } /* native scrollbars and form controls follow the theme */
+  html { -webkit-tap-highlight-color: transparent; }
+  /* The app never needs page-level horizontal scrolling; tables and the deal
+     board scroll inside their own containers. */
+  body { @apply bg-background font-body text-foreground antialiased; overflow-x: hidden; }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+  ::selection { @apply bg-accent/20; }
+}
+
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
+}
+
+/* Print-friendly quote pages. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}

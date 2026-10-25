@@ -1,0 +1,47 @@
+{
+  "name": "@crm/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env API_PORT=4000 tsx watch --clear-screen=false src/index.ts",
+    "start": "cross-env NODE_ENV=production tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force --skip-seed",
+    "seed": "tsx prisma/seed.ts",
+    "test": "vitest run"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@crm/shared": "*",
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.22.3",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
+    "tsx": "^4.19.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.2",
+    "@types/supertest": "^6.0.2",
+    "prisma": "^6.19.3",
+    "supertest": "^7.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NimbusOS — Footer</title>
+<script>
+  // Hide entrance targets only when JS runs and motion is allowed, so the page
+  // is always readable without JavaScript.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'animate' in Element.prototype) {
+    document.documentElement.classList.add('entrance-pending');
+  }
+</script>
+<style>
+  /* ---------- scale: 1 unit = 1px of the reference artboard ---------- */
+  :root {
+    --u: min(calc(100vw / 1433), max(0.68px, calc(100vh / 1098)));
+    --indigo: #111884;
+    --indigo-hover: #1A23A6;
+    --ink: #000;
+    --muted: #4E4E51;
+    --muted-2: #59595C;
+    --rule: #E0E1E9;
+    --card: #FEFEFE;
+    --bg: #03063A;
+    --floor-h: calc(var(--u) * 157.5);
+    --font: "Helvetica Neue", Helvetica, "Neue Haas Grotesk Text Pro", Arial, sans-serif;
+  }
+  @media (max-width: 1100px) { :root { --u: min(calc(100vw / 768), max(0.68px, calc(100vh / 1024))); --floor-h: calc(var(--u) * 108); } }
+  @media (max-width: 600px)  { :root { --u: min(calc(100vw / 390), max(0.68px, calc(100vh / 844)));  --floor-h: calc(var(--u) * 68); } }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); }
+  body { font-family: var(--font); font-weight: 400; -webkit-font-smoothing: antialiased; color: var(--ink); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; color: inherit; }
+  ul { list-style: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  :focus-visible { outline: calc(var(--u) * 2) solid #8E95FF; outline-offset: calc(var(--u) * 2); }
+
+  /* ---------- page & backdrop (the backdrop never moves) ---------- */
+  /* Exactly one viewport tall; only if the content can't fit at the minimum
+     scale (.68px per unit) does the page grow and scroll instead of clipping. */
+  .page { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+  .sky, .floor, .grain { position: absolute; pointer-events: none; }
+  .sky {
+    position: fixed; inset: 0; z-index: -3; /* the background never moves */
+    background: var(--bg) url("https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/4ec0de15-9d60-43b1-a76e-7d721f094fd6.jpg") center bottom / cover no-repeat;
+  }
+  .floor {
+    left: 0; right: 0; bottom: 0; height: var(--floor-h); z-index: -2;
+    background: url("https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cadf77d3-d2b1-45a2-800b-5f96d6ec3f18.jpg") center / 100% 100% no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 calc(var(--u) * 8));
+            mask-image: linear-gradient(to bottom, transparent 0, #000 calc(var(--u) * 8));
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: -1; opacity: 0.07; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: calc(var(--u) * 220) calc(var(--u) * 220);
+  }
+  .spacer { flex: 1 1 0; min-height: calc(var(--u) * 16); }
+
+  /* ---------- hero ---------- */
+  .hero { padding: calc(var(--u) * 35) calc(var(--u) * 47) 0; color: #fff; }
+  .badge {
+    position: relative; width: calc(var(--u) * 43); height: calc(var(--u) * 43); background: #fff;
+    clip-path: polygon(0 0, 70% 0, 100% 30%, 100% 100%, 0 100%);
+    display: grid; place-items: center;
+  }
+  .badge::after { /* the folded corner */
+    content: ""; position: absolute; top: 0; right: 0; width: 30%; height: 30%;
+    background: #C9CCF2; clip-path: polygon(0 0, 0 100%, 100% 100%);
+  }
+  .badge svg { width: 46%; height: 46%; }
+  .hero h1 {
+    margin-top: calc(var(--u) * 41); font-size: calc(var(--u) * 53.8); line-height: calc(var(--u) * 66);
+    font-weight: 400; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.9);
+    -webkit-text-stroke: calc(var(--u) * 0.35) currentColor;
+  }
+  .lede { margin-top: calc(var(--u) * 14); font-size: calc(var(--u) * 18.6); line-height: calc(var(--u) * 29.5); color: rgba(255, 255, 255, 0.69); }
+  .signup { margin-top: calc(var(--u) * 35.7); display: flex; align-items: stretch; gap: 0; }
+  .signup input {
+    width: calc(var(--u) * 530); height: calc(var(--u) * 55.5); border: 0; border-radius: 0;
+    padding: 0 calc(var(--u) * 22); font-size: calc(var(--u) * 16.5); color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(calc(var(--u) * 4)); backdrop-filter: blur(calc(var(--u) * 4));
+    transition: background-color .2s ease, box-shadow .2s ease;
+  }
+  .signup input::placeholder { color: rgba(255, 255, 255, 0.72); }
+  .signup input:focus { outline: none; background: rgba(255, 255, 255, 0.26); box-shadow: inset 0 0 0 calc(var(--u) * 1.5) rgba(255, 255, 255, 0.85); }
+  .btn-signup {
+    width: calc(var(--u) * 193.5); height: calc(var(--u) * 55.5); border: 0; background: #fff; color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 calc(var(--u) * 3.75) 0 calc(var(--u) * 28); font-size: calc(var(--u) * 17.5);
+  }
+  .btn-signup .sq {
+    width: calc(var(--u) * 48); height: calc(var(--u) * 48); background: var(--indigo); color: #fff;
+    display: grid; place-items: center; transition: background-color .2s ease;
+  }
+  .btn-signup:hover .sq, .btn-signup:focus-visible .sq { background: var(--indigo-hover); }
+  .btn-signup svg { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
+  .status { margin-top: calc(var(--u) * 10); min-height: calc(var(--u) * 20); font-size: calc(var(--u) * 15); color: rgba(255, 255, 255, 0.85); }
+
+  /* ---------- footer card ---------- */
+  .card {
+    position: relative; margin: 0 calc(var(--u) * 48) var(--floor-h); background: var(--card);
+    box-shadow: 0 0 0 calc(var(--u) * 1) rgba(5, 7, 40, 0.9), 0 calc(var(--u) * 2.5) 0 calc(var(--u) * 0.5) rgba(5, 7, 40, 0.35);
+  }
+  .card::before { /* fine double inner border */
+    content: ""; position: absolute; inset: calc(var(--u) * 5); pointer-events: none;
+    border: calc(var(--u) * 1) solid var(--rule);
+    box-shadow: inset 0 0 0 calc(var(--u) * 2.5) var(--card), inset 0 0 0 calc(var(--u) * 3.5) var(--rule);
+  }
+  .card-top {
+    position: relative; height: calc(var(--u) * 360); padding: calc(var(--u) * 62) 0 0 calc(var(--u) * 58);
+    display: grid; grid-template-columns: minmax(calc(var(--u) * 300), 1fr) calc(var(--u) * 236) calc(var(--u) * 207.5) calc(var(--u) * 199.5) calc(var(--u) * 165);
+  }
+  .logo { display: inline-flex; align-items: center; gap: calc(var(--u) * 11); font-size: calc(var(--u) * 25.4); letter-spacing: -0.01em; color: var(--ink); }
+  .logo svg { width: calc(var(--u) * 33); height: calc(var(--u) * 31); flex: none; }
+  .card-title {
+    margin-top: calc(var(--u) * 60); font-size: calc(var(--u) * 30.6); line-height: 1.18; font-weight: 400; letter-spacing: -0.01em;
+    -webkit-text-stroke: calc(var(--u) * 0.3) currentColor;
+  }
+  .btn-indigo {
+    margin-top: calc(var(--u) * 30); width: calc(var(--u) * 177); height: calc(var(--u) * 48);
+    display: inline-flex; align-items: center; justify-content: space-between;
+    padding: 0 calc(var(--u) * 4) 0 calc(var(--u) * 20); background: var(--indigo); color: #fff;
+    font-size: calc(var(--u) * 16); transition: background-color .2s ease;
+  }
+  .btn-indigo:hover, .btn-indigo:focus-visible { background: var(--indigo-hover); }
+  .btn-indigo .cap { width: calc(var(--u) * 40); height: calc(var(--u) * 40); background: #fff; color: var(--indigo); display: grid; place-items: center; }
+  .btn-indigo .cap svg { width: calc(var(--u) * 16); height: calc(var(--u) * 16); }
+
+  .links { display: contents; }
+  .tabs { display: none; }
+  .col { border-left: calc(var(--u) * 2.4) solid var(--rule); padding-left: calc(var(--u) * 22); }
+  .col h3 { font-size: calc(var(--u) * 19.8); font-weight: 400; color: var(--ink); -webkit-text-stroke: calc(var(--u) * 0.25) currentColor; }
+  .col ul { margin-top: calc(var(--u) * 26); display: flex; flex-direction: column; gap: calc(var(--u) * 19.5); }
+  .col a { display: inline-flex; align-items: center; gap: calc(var(--u) * 9); font-size: calc(var(--u) * 15.8); line-height: 1.2; color: var(--muted-2); transition: color .18s ease; }
+  .col a:hover, .col a:focus-visible { color: var(--indigo); }
+  .col a svg { width: calc(var(--u) * 15); height: calc(var(--u) * 15); flex: none; }
+
+  .card-bottom {
+    position: relative; height: calc(var(--u) * 62); border-top: calc(var(--u) * 1) solid var(--rule);
+    padding: 0 calc(var(--u) * 58); display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u) * 20);
+    font-size: calc(var(--u) * 14.4); color: var(--muted);
+  }
+  .legal { display: flex; align-items: center; gap: calc(var(--u) * 10); }
+  .legal a { transition: color .18s ease; }
+  .legal a:hover, .legal a:focus-visible { color: var(--indigo); }
+  .legal span { color: #A3A4AE; }
+
+  /* ---------- tablet (768 × 1024 artboard) ---------- */
+  @media (max-width: 1100px) {
+    .hero { padding: calc(var(--u) * 36) calc(var(--u) * 40) 0; }
+    .badge { width: calc(var(--u) * 40); height: calc(var(--u) * 40); }
+    .hero h1 { margin-top: calc(var(--u) * 28); font-size: calc(var(--u) * 42); line-height: calc(var(--u) * 50); }
+    .lede { font-size: calc(var(--u) * 17); line-height: calc(var(--u) * 26); }
+    .lede br { display: none; }
+    .signup { margin-top: calc(var(--u) * 26); }
+    .signup input { width: auto; flex: 1 1 auto; min-width: 0; height: calc(var(--u) * 52); }
+    .btn-signup { height: calc(var(--u) * 52); width: calc(var(--u) * 176); }
+    .btn-signup .sq { width: calc(var(--u) * 44); height: calc(var(--u) * 44); }
+    .card { margin: 0 calc(var(--u) * 32) var(--floor-h); }
+    .card-top {
+      height: auto; padding: calc(var(--u) * 36) calc(var(--u) * 36) calc(var(--u) * 32);
+      grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: calc(var(--u) * 32);
+    }
+    .brand { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; align-items: end; column-gap: calc(var(--u) * 24); }
+    .brand .logo { grid-column: 1 / -1; justify-self: start; }
+    .card-title { margin-top: calc(var(--u) * 24); font-size: calc(var(--u) * 27); }
+    .btn-indigo { margin-top: 0; }
+    .col { padding-left: calc(var(--u) * 16); }
+    .col h3 { font-size: calc(var(--u) * 18); }
+    .col ul { margin-top: calc(var(--u) * 18); gap: calc(var(--u) * 14); }
+    .col a { font-size: calc(var(--u) * 15); }
+    .card-bottom { height: calc(var(--u) * 56); padding: 0 calc(var(--u) * 36); font-size: calc(var(--u) * 13.5); }
+  }
+
+  /* ---------- phone (390 × 844 artboard) ---------- */
+  @media (max-width: 600px) {
+    .hero { padding: calc(var(--u) * 22) calc(var(--u) * 18) 0; }
+    .badge { width: calc(var(--u) * 34); height: calc(var(--u) * 34); }
+    .hero h1 { margin-top: calc(var(--u) * 20); font-size: calc(var(--u) * 25); line-height: calc(var(--u) * 30); }
+    .lede { margin-top: calc(var(--u) * 10); font-size: calc(var(--u) * 13.5); line-height: calc(var(--u) * 20); }
+    .signup { margin-top: calc(var(--u) * 18); }
+    .signup input { height: calc(var(--u) * 46); padding: 0 calc(var(--u) * 14); font-size: calc(var(--u) * 14); }
+    .btn-signup { width: calc(var(--u) * 116); height: calc(var(--u) * 46); padding-left: calc(var(--u) * 14); font-size: calc(var(--u) * 14); }
+    .btn-signup .sq { width: calc(var(--u) * 38); height: calc(var(--u) * 38); }
+    .btn-signup svg { width: calc(var(--u) * 18); height: calc(var(--u) * 18); }
+    .status { font-size: calc(var(--u) * 12.5); min-height: calc(var(--u) * 16); margin-top: calc(var(--u) * 6); }
+    .card { margin: 0 calc(var(--u) * 14) var(--floor-h); }
+    .card::before { inset: calc(var(--u) * 4); }
+    .card-top { display: block; padding: calc(var(--u) * 20) calc(var(--u) * 20) calc(var(--u) * 18); }
+    .brand { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: calc(var(--u) * 12); }
+    .brand .logo { grid-column: 1; grid-row: 1; font-size: calc(var(--u) * 20); }
+    .logo svg { width: calc(var(--u) * 28); height: calc(var(--u) * 26); }
+    .card-title { grid-column: 1 / -1; grid-row: 2; margin-top: calc(var(--u) * 14); font-size: calc(var(--u) * 20); }
+    .btn-indigo { grid-column: 2; grid-row: 1; width: auto; height: calc(var(--u) * 36); padding: 0 calc(var(--u) * 3) 0 calc(var(--u) * 12); gap: calc(var(--u) * 10); font-size: calc(var(--u) * 13); }
+    .btn-indigo .cap { width: calc(var(--u) * 30); height: calc(var(--u) * 30); }
+    .links { display: block; margin-top: calc(var(--u) * 20); }
+    .tabs { display: flex; border-bottom: calc(var(--u) * 1.5) solid var(--rule); }
+    .tabs [role="tab"] {
+      flex: 1; height: calc(var(--u) * 36); border: 0; background: none; cursor: pointer; font-size: calc(var(--u) * 13);
+      color: var(--muted-2); border-bottom: calc(var(--u) * 2.5) solid transparent; margin-bottom: calc(var(--u) * -1.5);
+    }
+    .tabs [role="tab"][aria-selected="true"] { color: var(--indigo); border-bottom-color: var(--indigo); }
+    .col { border-left: 0; padding: calc(var(--u) * 16) 0 0; }
+    .col h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .col ul { margin-top: 0; display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 12) calc(var(--u) * 16); }
+    .col a { font-size: calc(var(--u) * 14); }
+    .card-bottom {
+      height: auto; flex-direction: column; align-items: flex-start; justify-content: center; gap: calc(var(--u) * 6);
+      padding: calc(var(--u) * 14) calc(var(--u) * 20); font-size: calc(var(--u) * 12.5);
+    }
+    .legal { flex-wrap: wrap; gap: calc(var(--u) * 6); }
+  }
+
+  /* ---------- entrance (JS animates; this only hides targets until it starts) ---------- */
+  .entrance-pending [data-enter] { opacity: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="sky" aria-hidden="true"></div>
+  <div class="floor" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="badge" data-enter="badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#111884" stroke-width="2.2" stroke-linecap="square">
+        <path d="M5 6h14M5 11h14M5 16h9"/><path d="M5 20h5" />
+      </svg>
+    </div>
+    <h1 id="hero-title" data-enter="wipe">Let Your Work Speak For Itself.<br>We’ll Handle The Words.</h1>
+    <p class="lede" data-enter="fade">We’re here to help you navigate your digital journey. Get in touch with us today to discuss<br> how we can take your business to the next level.</p>
+    <form class="signup" data-enter="fade" novalidate>
+      <label for="email" class="sr-only">Email address</label>
+      <input id="email" name="email" type="email" placeholder="Enter Your Mail..." autocomplete="email" required>
+      <button class="btn-signup" type="submit">
+        Sign Up
+        <span class="sq" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.25"/><path d="M8.5 12h7M12.5 8.75 15.75 12l-3.25 3.25"/>
+          </svg>
+        </span>
+      </button>
+    </form>
+    <p class="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="spacer" aria-hidden="true"></div>
+
+  <footer class="card">
+    <div class="card-top">
+      <div class="brand">
+        <a class="logo" href="#" data-enter="fade" aria-label="NimbusOS home">
+          <svg viewBox="0 0 33 31" aria-hidden="true">
+            <g fill="none" stroke="#111884" stroke-width="1.15" stroke-linejoin="round">
+              <polygon points="25.42,11.15 29.19,13.33 29.19,17.68 25.42,19.85 21.65,17.68 21.65,13.32"/>
+              <polygon points="20.96,18.88 24.73,21.05 24.73,25.40 20.96,27.57 17.19,25.40 17.19,21.05"/>
+              <polygon points="12.04,18.88 15.81,21.05 15.81,25.40 12.04,27.58 8.27,25.40 8.27,21.05"/>
+              <polygon points="7.58,11.15 11.35,13.33 11.35,17.68 7.58,19.85 3.81,17.68 3.81,13.33"/>
+              <polygon points="12.04,3.43 15.81,5.60 15.81,9.95 12.04,12.13 8.27,9.95 8.27,5.60"/>
+              <polygon points="20.96,3.43 24.73,5.60 24.73,9.95 20.96,12.13 17.19,9.95 17.19,5.60"/>
+            </g>
+            <polygon fill="#111884" points="16.50,11.15 20.27,13.33 20.27,17.68 16.50,19.85 12.73,17.68 12.73,13.32"/>
+          </svg>
+          <span aria-hidden="true">NimbusOS</span>
+        </a>
+        <h2 class="card-title" data-enter="wipe">The Architect Of<br>Modern Digital Growth.</h2>
+        <a class="btn-indigo" href="#contact" data-enter="fade">
+          Get In Touch
+          <span class="cap" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M7 17 17 7M8.5 7H17v8.5"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <nav class="links" aria-label="Footer">
+        <div class="tabs" role="tablist" aria-label="Footer link groups" hidden>
+          <button role="tab" id="tab-industries" aria-controls="grp-industries">Industries</button>
+          <button role="tab" id="tab-insights" aria-controls="grp-insights">Insights</button>
+          <button role="tab" id="tab-company" aria-controls="grp-company">Company</button>
+          <button role="tab" id="tab-connect" aria-controls="grp-connect">Connect</button>
+        </div>
+        <div class="col" id="grp-industries" data-enter="col">
+          <h3>Industries</h3>
+          <ul>
+            <li><a href="#">Automotive</a></li><li><a href="#">Energy &amp; Utilities</a></li><li><a href="#">Financial</a></li>
+            <li><a href="#">Life Science</a></li><li><a href="#">Embedded Teams</a></li>
+          </ul>
+        </div>
+        <div class="col" id="grp-insights" data-enter="col">
+          <h3>Insights</h3>
+          <ul>
+            <li><a href="#">News</a></li><li><a href="#">Case Studies</a></li><li><a href="#">Podcasts</a></li>
+            <li><a href="#">Events</a></li><li><a href="#">Public Sector</a></li>
+          </ul>
+        </div>
+        <div class="col" id="grp-company" data-enter="col">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="#">About Us</a></li><li><a href="#">Careers</a></li><li><a href="#">Join Us</a></li>
+            <li><a href="#contact">Contact Us</a></li><li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div class="col" id="grp-connect" data-enter="col">
+          <h3>Connect</h3>
+          <!-- Generic outline icons only: no third-party brand marks. -->
+          <ul>
+            <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.9 7.9"/></svg>X.com</a></li>
+            <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>Instagram</a></li>
+            <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18.5 20a6.5 6.5 0 0 0-3-5.5"/></svg>Facebook</a></li>
+            <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>LinkedIn</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="card-bottom" data-enter="fade">
+      <nav class="legal" aria-label="Legal">
+        <a href="#">Privacy Policy</a><span aria-hidden="true">·</span><a href="#">Terms of Use</a><span aria-hidden="true">·</span><a href="#">Cookie Consent</a>
+      </nav>
+      <p>© 2025 NimbusOS Ltd. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  // ---------- newsletter ----------
+  const form = document.querySelector('.signup');
+  const status = document.querySelector('.status');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = form.elements.email;
+    if (!input.checkValidity()) { input.reportValidity(); return; }
+    input.value = '';
+    status.textContent = 'Thanks — we’ll be in touch.';
+  });
+
+  // ---------- phone: link groups become an ARIA tab set ----------
+  const phone = matchMedia('(max-width: 600px)');
+  const tablist = document.querySelector('[role="tablist"]');
+  const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+  const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')));
+  let active = 0;
+
+  function select(i, focus) {
+    active = i;
+    tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; });
+    panels.forEach((p, k) => { p.hidden = k !== i; });
+    if (focus) tabs[i].focus();
+  }
+  function applyMode() {
+    if (phone.matches) {
+      tablist.hidden = false;
+      panels.forEach((p, k) => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', tabs[k].id); p.tabIndex = 0; });
+      select(active, false);
+    } else {
+      tablist.hidden = true;
+      panels.forEach((p) => { p.removeAttribute('role'); p.removeAttribute('aria-labelledby'); p.removeAttribute('tabindex'); p.hidden = false; });
+    }
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => select(i, false)));
+  tablist.addEventListener('keydown', (e) => {
+    const map = { ArrowRight: active + 1, ArrowLeft: active - 1, Home: 0, End: tabs.length - 1 };
+    if (!(e.key in map)) return;
+    e.preventDefault();
+    select((map[e.key] + tabs.length) % tabs.length, true);
+  });
+  phone.addEventListener('change', applyMode);
+  applyMode();
+
+  // ---------- entrance (~1.9s, Web Animations) ----------
+  const root = document.documentElement;
+  if (!root.classList.contains('entrance-pending')) return; // reduced motion or no WAAPI
+  let started = false;
+  const reveal = () => root.classList.remove('entrance-pending');
+  const failsafe = setTimeout(() => { if (!started) reveal(); }, 3000);
+  const animations = [];
+  const ease = 'cubic-bezier(.2,.7,.2,1)';
+  const play = (el, keyframes, delay, duration) => {
+    if (el) animations.push(el.animate(keyframes, { delay, duration, easing: ease, fill: 'backwards' }));
+  };
+  const fadeUp = [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }];
+  const wipe = [{ opacity: 1, clipPath: 'inset(100% 0 0 0)', transform: 'translateY(0.35em)' }, { opacity: 1, clipPath: 'inset(0 0 0 0)', transform: 'none' }];
+  const settle = [{ opacity: 0, transform: 'translateY(8px) scale(.9) rotate(-4deg)' }, { opacity: 1, transform: 'none' }];
+
+  function run() {
+    if (started || !root.classList.contains('entrance-pending')) return; // failsafe already revealed
+    started = true;
+    clearTimeout(failsafe);
+    const $ = (s) => document.querySelector(s);
+    play($('[data-enter="badge"]'), settle, 80, 520);
+    play($('.hero h1'), wipe, 220, 700);
+    play($('.lede'), fadeUp, 460, 520);
+    play($('.signup'), fadeUp, 600, 520);
+    play($('.logo'), fadeUp, 800, 460);
+    play($('.card-title'), wipe, 880, 650);
+    play($('.btn-indigo'), fadeUp, 1020, 460);
+    document.querySelectorAll('[data-enter="col"]').forEach((c, i) => play(c, fadeUp, 1100 + i * 90, 460));
+    play($('.card-bottom'), fadeUp, 1480, 420);
+    reveal(); // fill:backwards keeps each element hidden until its delay
+    const skip = () => { animations.forEach((a) => a.finish()); off(); };
+    const off = () => { removeEventListener('pointerdown', skip); removeEventListener('keydown', skip); };
+    addEventListener('pointerdown', skip, { once: true });
+    addEventListener('keydown', skip, { once: true });
+    Promise.all(animations.map((a) => a.finished)).then(off, off);
+  }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(run, run);
+})();
+</script>
+</body>
+</html>
