@@ -72,6 +72,26 @@ Once the demo organization exists, visitors don't need these passwords. The home
 | `PORT` / `API_PORT` | 4000 | `API_PORT` wins if both are set |
 | `SECURE_COOKIES` | 0 | Set to 1 behind HTTPS |
 | `UPLOAD_DIR` | `server/uploads` | Where attachments are stored |
+| `TRUST_PROXY` | `1` on Railway, else `loopback` | Proxy hops in front of the app (Express `trust proxy`), so rate limits see each visitor's real IP |
+| `DEMO_LOGIN` | `true` | Set to `false` to hide the live-demo buttons |
+
+## Deploy to Railway
+
+The repo includes [`railway.json`](railway.json), which sets the build, start and health-check commands. One service runs the API and serves the built website. SQLite and uploads live on a Railway volume.
+
+1. On [railway.app](https://railway.app), choose **New Project → Deploy from GitHub repo** and pick this repository.
+2. Add a **Volume** to the service, mounted at `/data`.
+3. Under **Variables**, add:
+   ```
+   DATABASE_URL=file:/data/crm.db
+   UPLOAD_DIR=/data/uploads
+   JWT_SECRET=<at least 32 random characters>
+   SECURE_COOKIES=1
+   ```
+4. Under **Settings → Networking**, choose **Generate Domain**.
+5. Optional: to load the live demo, run `npm run seed` once from the service's shell.
+
+Migrations run on every start (`npm run db:deploy`), and every push to `main` redeploys. Other hosts work the same way: build with `npm ci --include=dev && npm run build`, start with `npm run db:deploy && npm start`, and keep `DATABASE_URL` and `UPLOAD_DIR` on persistent storage.
 
 ## Project layout
 

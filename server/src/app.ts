@@ -24,7 +24,10 @@ import { dashboardRouter, reportsRouter } from './routes/insights';
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback');
+  // Behind a hosting proxy (Railway, Render…) the visitor's IP is in X-Forwarded-For;
+  // trust exactly that many hops so rate limits apply per visitor, not per proxy.
+  const proxy = process.env.TRUST_PROXY ?? (process.env.RAILWAY_ENVIRONMENT ? '1' : 'loopback');
+  app.set('trust proxy', /^\d+$/.test(proxy) ? Number(proxy) : proxy);
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
