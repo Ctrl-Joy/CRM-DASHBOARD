@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2 } from 'lucide-react';
 import { LogoMark } from '@/components/layout/logo';
-import { loginSchema, signupSchema, type LoginInput, type SignupInput } from '@crm/shared';
+import { forgotPasswordSchema, loginSchema, resetPasswordSchema, signupSchema, type ForgotPasswordInput, type LoginInput, type ResetPasswordInput, type SignupInput } from '@crm/shared';
+import { toast } from 'sonner';
 import { api, ApiError } from '@/lib/api';
 import { useDemoAvailable, useDemoLogin, type DemoRole } from './demo';
 import { Button } from '@/components/ui/button';
@@ -86,6 +87,7 @@ export function LoginPage() {
         <Field label="Work email" error={errors.email?.message}><Input type="email" inputMode="email" autoComplete="email" autoFocus {...register('email')} /></Field>
         <Field label="Password" error={errors.password?.message}><Input type="password" autoComplete="current-password" {...register('password')} /></Field>
         <Button type="submit" className="w-full" loading={isSubmitting}>Sign in</Button>
+        <p className="text-center text-sm"><Link to="/forgot-password" className="inline-flex min-h-11 items-center text-muted-foreground hover:text-foreground hover:underline sm:min-h-0">Forgot your password?</Link></p>
       </form>
       <DemoAccess />
     </AuthLayout>
@@ -109,6 +111,67 @@ export function SignupPage() {
         <Field label="Password" hint="At least 8 characters" error={errors.password?.message}><Input type="password" autoComplete="new-password" {...register('password')} /></Field>
         <Button type="submit" className="w-full" loading={isSubmitting}>Create account</Button>
         <p className="text-center text-xs text-muted-foreground">You'll be the admin of your new organization and can invite your team from Settings.</p>
+      </form>
+    </AuthLayout>
+  );
+}
+
+export function ForgotPasswordPage() {
+  const { register, handleSubmit, setError, getValues, formState: { errors, isSubmitting } } = useForm<ForgotPasswordInput>({ resolver: zodResolver(forgotPasswordSchema) });
+  const [done, setDone] = React.useState<{ delivery: boolean } | null>(null);
+  const submit = async (values: ForgotPasswordInput) => {
+    try { setDone(await api.post<{ delivery: boolean }>('/auth/forgot', values)); }
+    catch (err) { setError('root', { message: (err as Error).message }); }
+  };
+  const back = <Link to="/login" className="font-medium text-primary hover:underline">Back to sign in</Link>;
+  if (done) {
+    return (
+      <AuthLayout title={done.delivery ? 'Check your email' : 'Email is not set up'} footer={back}
+        subtitle={done.delivery
+          ? `If ${getValues('email')} has an account, a link to choose a new password is on its way. It works for 30 minutes.`
+          : 'This server cannot send email, so no reset link was sent. Ask your workspace admin to set a new password for you in Settings.'}>
+        {done.delivery && <p className="text-sm text-muted-foreground">Nothing after a few minutes? Check your spam folder, or <button type="button" className="font-medium text-foreground underline underline-offset-2" onClick={() => setDone(null)}>try again</button>.</p>}
+      </AuthLayout>
+    );
+  }
+  return (
+    <AuthLayout title="Forgot your password?" subtitle="Enter your email and we'll send you a link to choose a new one." footer={back}>
+      <form onSubmit={handleSubmit(submit)} className="space-y-4" noValidate>
+        {errors.root && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{errors.root.message}</p>}
+        <Field label="Work email" error={errors.email?.message}><Input type="email" inputMode="email" autoComplete="email" autoFocus {...register('email')} /></Field>
+        <Button type="submit" className="w-full" loading={isSubmitting}>Send reset link</Button>
+      </form>
+    </AuthLayout>
+  );
+}
+
+export function ResetPasswordPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const token = new URLSearchParams(location.hash.slice(1)).get('token') ?? '';
+  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<ResetPasswordInput>({ resolver: zodResolver(resetPasswordSchema), defaultValues: { token } });
+  const submit = async (values: ResetPasswordInput) => {
+    try {
+      await api.post('/auth/reset', values);
+      await qc.invalidateQueries({ queryKey: ['me'] });
+      toast.success('Password changed. You are signed in.');
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      if (err instanceof ApiError && err.fields.password) setError('password', { message: err.fields.password });
+      else setError('root', { message: (err as Error).message });
+    }
+  };
+  const again = <Link to="/forgot-password" className="font-medium text-primary hover:underline">Send a new link</Link>;
+  if (!token) {
+    return <AuthLayout title="This link is incomplete" subtitle="Open the link from your email again, or ask for a new one." footer={again}>{null}</AuthLayout>;
+  }
+  return (
+    <AuthLayout title="Choose a new password" subtitle="You'll be signed in, and signed out everywhere else." footer={again}>
+      <form onSubmit={handleSubmit(submit)} className="space-y-4" noValidate>
+        {errors.root && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{errors.root.message}</p>}
+        <Field label="New password" hint="At least 8 characters" error={errors.password?.message}><Input type="password" autoComplete="new-password" autoFocus {...register('password')} /></Field>
+        <Button type="submit" className="w-full" loading={isSubmitting}>Save and sign in</Button>
       </form>
     </AuthLayout>
   );

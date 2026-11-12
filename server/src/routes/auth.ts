@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
-import { changePasswordSchema, loginSchema, profileSchema, signupSchema, type Me, type Role } from '@crm/shared';
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, profileSchema, resetPasswordSchema, signupSchema, type Me, type Role } from '@crm/shared';
 import { prisma } from '../lib/prisma';
-import { clearSessionCookie, me, requireAuth, setSessionCookie, signToken } from '../lib/auth';
+import { clearSessionCookie, me, requireAuth, setSessionCookie, signResetToken, signToken, verifyResetToken } from '../lib/auth';
+import { emailProvider } from '../services/email';
 import { badRequest, handler, HttpError, parse } from '../lib/http';
 import { audit } from '../lib/audit';
 import { createOrganization } from '../services/setup';
@@ -68,6 +69,50 @@ authRouter.post('/demo', limiter, handler(async (req, res) => {
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   setSessionCookie(res, signToken(user));
   await audit({ user: { id: user.id, orgId: user.orgId }, ip: req.ip }, 'login', 'user', user.id, { demo: true });
+  return { ok: true };
+}));
+
+// ---------- forgotten password ----------
+// The answer is the same whether or not the address has an account, so this
+// can't be used to find out who is registered.
+authRouter.post('/forgot', limiter, handler(async (req) => {
+  const { email } = parse(forgotPasswordSchema, req.body);
+  // Whether this server can deliver mail at all is not a secret, and saves people waiting for nothing.
+  const result = { ok: true, delivery: emailProvider.name !== 'console' };
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !user.active || user.deletedAt) return result;
+  if (demoLoginEnabled() && user.orgId === (await demoOrgId())) return result; // shared demo accounts stay as they are
+  const base = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
+  // The token sits after "#", which browsers never send to a server or put in a Referer header.
+  const link = `${base}/reset-password#token=${signResetToken(user)}`;
+  try {
+    const sent = await emailProvider.send({
+      from: 'no-reply@nexora.local', to: user.email, subject: 'Reset your Nexora password',
+      text: `Hi ${user.name.split(' ')[0]},\n\nSomeone asked to reset the password for your Nexora account. To choose a new one, open this link within 30 minutes:\n\n${link}\n\nIf this wasn't you, ignore this email and your password stays the same.`,
+    });
+    if (!sent.delivered && !['production', 'test'].includes(process.env.NODE_ENV ?? '')) console.log(`[auth] password reset link for ${user.email}: ${link}`);
+  } catch (err) {
+    console.error('[auth] could not send the password reset email:', (err as Error).message);
+  }
+  await audit({ user: { id: user.id, orgId: user.orgId }, ip: req.ip }, 'password_reset_request', 'user', user.id);
+  return result;
+}));
+
+authRouter.post('/reset', limiter, handler(async (req, res) => {
+  const { token, password } = parse(resetPasswordSchema, req.body);
+  const expired = new HttpError(400, 'This reset link has expired or was already used. Ask for a new one.');
+  const payload = verifyResetToken(token);
+  if (!payload) throw expired;
+  const user = await prisma.user.findFirst({ where: { id: payload.sub, active: true, deletedAt: null } });
+  if (!user || user.tokenVersion !== payload.tv) throw expired;
+  await assertNotDemo(user.orgId);
+  // Bumping tokenVersion signs out every session and retires this link.
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await bcrypt.hash(password, 12), tokenVersion: { increment: 1 } },
+  });
+  setSessionCookie(res, signToken(updated));
+  await audit({ user: { id: user.id, orgId: user.orgId }, ip: req.ip }, 'password_reset', 'user', user.id);
   return { ok: true };
 }));
 

@@ -29,6 +29,11 @@ export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
+export const forgotPasswordSchema = z.object({ email: z.string().trim().toLowerCase().email('Enter a valid email') });
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1).max(2000),
+  password: z.string().min(8, 'Use at least 8 characters').max(200),
+});
 export const profileSchema = z.object({ name: zReq('Name', 100), email: z.string().trim().toLowerCase().email(), avatarUrl: zStr(500) });
 export const changePasswordSchema = z.object({ current: z.string().min(1), next: z.string().min(8, 'Use at least 8 characters').max(200) });
 
@@ -307,6 +312,8 @@ export const importSchema = z.object({ rows: z.array(z.record(z.string())).min(1
 // ---------- inferred input types ----------
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type CompanyInput = z.infer<typeof companySchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type LeadInput = z.infer<typeof leadSchema>;

@@ -212,3 +212,27 @@ describe('search', () => {
     await a.get('/api/search?q=99999999999').expect(200);
   });
 });
+
+describe('forgotten password', () => {
+  it('resets with a one-time link and gives nothing away about who has an account', async () => {
+    const { signResetToken } = await import('../src/lib/auth');
+    const address = email('forgot');
+    const anon = request.agent(app);
+    await anon.post('/api/auth/signup').set(H).send({ name: 'Fay Forgot', email: address, password: 'old-password-1', company: 'Reset Co' }).expect(201);
+    const known = await request(app).post('/api/auth/forgot').set(H).send({ email: address }).expect(200);
+    const unknown = await request(app).post('/api/auth/forgot').set(H).send({ email: email('nobody') }).expect(200);
+    expect(known.body).toEqual(unknown.body);
+
+    const user = await prisma.user.findUniqueOrThrow({ where: { email: address } });
+    const token = signResetToken(user);
+    // A reset token is not a session.
+    await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`).expect(401);
+    await request(app).post('/api/auth/reset').set(H).send({ token, password: 'short' }).expect(400);
+    await request(app).post('/api/auth/reset').set(H).send({ token, password: 'new-password-2' }).expect(200);
+    // The link works once, the old password and old sessions stop working, the new one signs in.
+    await request(app).post('/api/auth/reset').set(H).send({ token, password: 'another-password-3' }).expect(400);
+    await anon.get('/api/auth/me').expect(401);
+    await request(app).post('/api/auth/login').set(H).send({ email: address, password: 'old-password-1' }).expect(401);
+    await request(app).post('/api/auth/login').set(H).send({ email: address, password: 'new-password-2' }).expect(200);
+  });
+});

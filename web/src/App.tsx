@@ -21,13 +21,15 @@ const PRELOAD: Record<string, () => Promise<unknown>> = {
   contacts: () => import('@/features/contacts/contacts'), tasks: () => import('@/features/work/tasks'), leads: () => import('@/features/leads/leads'),
 };
 const first = window.location.pathname.split('/')[1] ?? '';
-if (!['', 'login', 'signup', 'f', 'quotes'].includes(first)) {
+if (!['', 'login', 'signup', 'forgot-password', 'reset-password', 'f', 'quotes'].includes(first)) {
   void import('@/components/layout/shell');
   void PRELOAD[first]?.();
 }
 
 const LoginPage = lazy(() => import('@/features/public/auth'), 'LoginPage');
 const SignupPage = lazy(() => import('@/features/public/auth'), 'SignupPage');
+const ForgotPasswordPage = lazy(() => import('@/features/public/auth'), 'ForgotPasswordPage');
+const ResetPasswordPage = lazy(() => import('@/features/public/auth'), 'ResetPasswordPage');
 const PublicLeadForm = lazy(() => import('@/features/public/lead-form'), 'PublicLeadForm');
 const Dashboard = lazy(() => import('@/features/dashboard/dashboard'), 'DashboardPage');
 const Contacts = lazy(() => import('@/features/contacts/contacts'), 'ContactsPage');
@@ -89,7 +91,7 @@ export function App() {
   React.useEffect(() => {
     setUnauthorizedHandler(() => {
       qc.removeQueries({ queryKey: ['me'] });
-      if (!['/login', '/signup', '/'].includes(window.location.pathname)) navigate('/login', { replace: true });
+      if (!['/login', '/signup', '/forgot-password', '/reset-password', '/'].includes(window.location.pathname)) navigate('/login', { replace: true });
     });
   }, [qc, navigate]);
 
@@ -99,6 +101,8 @@ export function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/f/:key" element={<PublicLeadForm />} />
         <Route path="/quotes/:id/print" element={<QuotePrint />} />
         <Route element={<RequireAuth />}>

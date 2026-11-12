@@ -36,6 +36,18 @@ export function signToken(user: { id: string; tokenVersion: number }) {
   return jwt.sign({ sub: user.id, tv: user.tokenVersion }, secret(), { expiresIn: TTL_SECONDS });
 }
 
+// Password-reset links are signed with a different key from sessions, so a
+// reset token can never be used to sign in. They carry tokenVersion: changing
+// the password bumps it, which makes every earlier link (and session) invalid.
+const RESET_TTL_SECONDS = 30 * 60;
+const resetSecret = () => `${secret()}:password-reset`;
+export function signResetToken(user: { id: string; tokenVersion: number }) {
+  return jwt.sign({ sub: user.id, tv: user.tokenVersion }, resetSecret(), { expiresIn: RESET_TTL_SECONDS });
+}
+export function verifyResetToken(token: string): { sub: string; tv: number } | null {
+  try { return jwt.verify(token, resetSecret()) as { sub: string; tv: number }; } catch { return null; }
+}
+
 export function setSessionCookie(res: Response, token: string) {
   res.cookie(COOKIE, token, {
     httpOnly: true,

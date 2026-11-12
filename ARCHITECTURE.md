@@ -68,7 +68,7 @@ Enumerations are plain strings validated by zod rather than database enums, so a
 
 Everything below runs end to end against the real API. The automated tests cover the starred items (★).
 
-- Sign-up into an empty organization ★, login and logout, profile, password change (signs out other sessions)
+- Sign-up into an empty organization ★, login and logout, profile, password change (signs out other sessions), forgotten-password reset by emailed one-time link ★ (needs email delivery to be configured)
 - RBAC: rep, manager and admin scoping ★, plus the editable permission matrix ★
 - Contacts and companies: list with search, filters, sort, pagination, saved views, bulk assign/tag/status/delete, inline edit and CSV import/export ★
 - Contact 360 view: profile, company, deals, timeline, emails, tasks, tickets, files and AI summary
