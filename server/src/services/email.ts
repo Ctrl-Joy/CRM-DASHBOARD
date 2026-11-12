@@ -99,6 +99,8 @@ export async function emailStatus(): Promise<string> {
       status = BREVO_API_KEY.startsWith('xsmtpsib-') ? 'BREVO_API_KEY is an SMTP key; an API key (xkeysib-) is needed'
         : `Brevo rejected BREVO_API_KEY${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
     }
+    // A key limited to sending can't list senders; that is not a failure.
+    else if (res.status === 403) status = 'key accepted; sender not checked (this key cannot read account details)';
     else if (!res.ok) {
       const detail = (await res.json().catch(() => null)) as { message?: string } | null;
       status = `Brevo answered ${res.status}${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
