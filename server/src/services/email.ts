@@ -99,12 +99,16 @@ async function recentEvents(apiKey: string): Promise<string> {
       const detail = (await res.json().catch(() => null)) as { message?: string } | null;
       return `events not readable (${res.status}${detail?.message ? `: ${mask(detail.message)}` : ''})`;
     }
-    const { events = [] } = (await res.json()) as { events?: { event: string; reason?: string }[] };
+    const { events = [] } = (await res.json()) as { events?: { event: string; reason?: string; subject?: string; email?: string; date?: string }[] };
+    const resets = events.filter((e) => e.subject === 'Reset your Nexora password');
+    const resetNote = resets.length
+      ? `password-reset emails: ${resets.map((e) => `${e.event} ${e.date ?? ''} to …@${(e.email ?? '').split('@')[1] ?? '?'}${e.reason ? ` (${mask(e.reason)})` : ''}`).join(' | ')}; `
+      : 'no password-reset email has reached Brevo in the last day; ';
     if (!events.length) return 'no email activity in Brevo in the last day';
     const counts: Record<string, number> = {};
     for (const e of events) counts[e.event] = (counts[e.event] ?? 0) + 1;
     const reason = events.find((e) => e.reason)?.reason;
-    return `last day in Brevo: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', ')}${reason ? `; reason: ${mask(reason)}` : ''}`;
+    return `${resetNote}last day in Brevo: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', ')}${reason ? `; reason: ${mask(reason)}` : ''}`;
   } catch { return 'events not readable'; }
 }
 
