@@ -92,31 +92,10 @@ export const setEmailProvider = (p: EmailProvider) => { emailProvider = p; };
 let cached: { at: number; status: string } | null = null;
 
 /** "off", "ready", or a short reason delivery would fail. Asks Brevo at most every 10 minutes. */
-async function recentEvents(apiKey: string): Promise<string> {
-  try {
-    const res = await fetch('https://api.brevo.com/v3/smtp/statistics/events?limit=20&days=1&sort=desc', { headers: { 'api-key': apiKey, accept: 'application/json' }, signal: AbortSignal.timeout(10_000) });
-    if (!res.ok) {
-      const detail = (await res.json().catch(() => null)) as { message?: string } | null;
-      return `events not readable (${res.status}${detail?.message ? `: ${mask(detail.message)}` : ''})`;
-    }
-    const { events = [] } = (await res.json()) as { events?: { event: string; reason?: string; subject?: string; email?: string; date?: string }[] };
-    const resets = events.filter((e) => e.subject === 'Reset your Nexora password');
-    const resetNote = resets.length
-      ? `password-reset emails: ${resets.map((e) => `${e.event} ${e.date ?? ''} to …@${(e.email ?? '').split('@')[1] ?? '?'}${e.reason ? ` (${mask(e.reason)})` : ''}`).join(' | ')}; `
-      : 'no password-reset email has reached Brevo in the last day; ';
-    if (!events.length) return 'no email activity in Brevo in the last day';
-    const counts: Record<string, number> = {};
-    for (const e of events) counts[e.event] = (counts[e.event] ?? 0) + 1;
-    const reason = events.find((e) => e.reason)?.reason;
-    return `${resetNote}last day in Brevo: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', ')}${reason ? `; reason: ${mask(reason)}` : ''}`;
-  } catch { return 'events not readable'; }
-}
-
 export async function emailStatus(): Promise<string> {
   const base = await keyStatus();
-  if (base === 'off' || !process.env.BREVO_API_KEY) return base;
-  const last = lastSend ? `; last send ${Math.round((Date.now() - lastSend.at) / 60000)} min ago: ${lastSend.ok ? 'ok' : 'FAILED'}, ${lastSend.note}` : '; no send since the server started';
-  return `${base}${last}; ${await recentEvents(process.env.BREVO_API_KEY)}`;
+  if (!lastSend || base === 'off') return base;
+  return `${base}; last send ${lastSend.ok ? 'ok' : `failed: ${lastSend.note}`}`;
 }
 
 async function keyStatus(): Promise<string> {
@@ -134,7 +113,7 @@ async function keyStatus(): Promise<string> {
         : `Brevo rejected BREVO_API_KEY${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
     }
     // A key limited to sending can't list senders; that is not a failure.
-    else if (res.status === 403) status = 'key accepted; sender not checked (this key cannot read account details)';
+    else if (res.status === 403) status = 'ready (sender not checked: this key cannot read account details)';
     else if (!res.ok) {
       const detail = (await res.json().catch(() => null)) as { message?: string } | null;
       status = `Brevo answered ${res.status}${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
