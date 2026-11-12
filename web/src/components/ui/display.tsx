@@ -6,7 +6,7 @@ import { avatarHue, cn, initials } from '@/lib/utils';
 
 // ---------- Card ----------
 export const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) =>
-  <div className={cn('rounded-xl border bg-card text-card-foreground shadow-sm', className)} {...props} />;
+  <div className={cn('rounded-xl border bg-card text-card-foreground', className)} {...props} />;
 
 export function CardHeader({ title, description, action, className, icon: Icon }: {
   title: React.ReactNode; description?: React.ReactNode; action?: React.ReactNode; className?: string; icon?: LucideIcon;
@@ -76,7 +76,7 @@ export function PageHeader({ title, description, actions, children }: { title: R
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
       <div className="min-w-0 sm:shrink-0">
-        <h1 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">{title}</h1>
+        <h1 className="font-display text-[2rem] leading-tight tracking-tight sm:text-4xl">{title}</h1>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
         {children}
       </div>
@@ -88,9 +88,9 @@ export function PageHeader({ title, description, actions, children }: { title: R
 // ---------- Tabs ----------
 export const Tabs = TabsPrimitive.Root;
 export const TabsList = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>) =>
-  <TabsPrimitive.List className={cn('inline-flex h-9 max-w-full items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1 text-muted-foreground scrollbar-thin', className)} {...props} />;
+  <TabsPrimitive.List className={cn('inline-flex h-[52px] max-w-full items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1 text-muted-foreground no-scrollbar sm:h-9', className)} {...props} />;
 export const TabsTrigger = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) =>
-  <TabsPrimitive.Trigger className={cn('inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm [&_svg]:size-3.5', className)} {...props} />;
+  <TabsPrimitive.Trigger className={cn('inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm [&_svg]:size-3.5', className)} {...props} />;
 export const TabsContent = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) =>
   <TabsPrimitive.Content className={cn('mt-4 focus-visible:outline-none', className)} {...props} />;
 
@@ -108,11 +108,11 @@ export function DetailList({ items, className }: { items: { label: string; value
   );
 }
 
-export function Progress({ value, className, tone = 'primary' }: { value: number; className?: string; tone?: 'primary' | 'success' | 'warning' | 'destructive' }) {
+export function Progress({ value, className, tone = 'primary', label = 'Progress' }: { value: number; className?: string; tone?: 'primary' | 'success' | 'warning' | 'destructive'; label?: string }) {
   const bg = { primary: 'bg-primary', success: 'bg-success', warning: 'bg-warning', destructive: 'bg-destructive' }[tone];
   return (
-    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)} role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn('h-full rounded-full transition-all', bg)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)} role="progressbar" aria-label={label} aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
+      <div className={cn('h-full rounded-full', bg)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }

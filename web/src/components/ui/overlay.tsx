@@ -14,7 +14,7 @@ export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
-const overlayCls = 'fixed inset-0 z-50 bg-black/50 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
+const overlayCls = 'fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
 
 export const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
@@ -25,7 +25,9 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'fixed z-50 flex flex-col border bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[92dvh] max-sm:!max-w-none max-sm:rounded-t-2xl max-sm:pb-safe max-sm:data-[state=closed]:slide-out-to-bottom max-sm:data-[state=open]:slide-in-from-bottom',
+        'sm:left-1/2 sm:top-1/2 sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
         { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size],
         className,
       )}
@@ -37,7 +39,7 @@ export const DialogContent = React.forwardRef<
           {description ? <DialogPrimitive.Description className="mt-1 text-sm text-muted-foreground">{description}</DialogPrimitive.Description>
             : <DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>}
         </div>
-        <DialogPrimitive.Close className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Close"><X className="size-4" /></DialogPrimitive.Close>
+        <DialogPrimitive.Close className="-mr-2 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Close"><X className="size-4" /></DialogPrimitive.Close>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
     </DialogPrimitive.Content>
@@ -87,7 +89,7 @@ DropdownMenuContent.displayName = 'DropdownMenuContent';
 export const DropdownMenuItem = React.forwardRef<React.ElementRef<typeof DropdownPrimitive.Item>, React.ComponentPropsWithoutRef<typeof DropdownPrimitive.Item> & { destructive?: boolean }>(
   ({ className, destructive, ...props }, ref) => (
     <DropdownPrimitive.Item ref={ref}
-      className={cn('relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors focus:bg-secondary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4', destructive && 'text-destructive focus:text-destructive', className)} {...props} />
+      className={cn('relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm max-sm:min-h-11 outline-none transition-colors focus:bg-secondary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4', destructive && 'text-destructive focus:text-destructive', className)} {...props} />
   ),
 );
 DropdownMenuItem.displayName = 'DropdownMenuItem';

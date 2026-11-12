@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  DndContext, DragOverlay, KeyboardSensor, PointerSensor, closestCorners, pointerWithin, useDraggable, useDroppable, useSensor, useSensors,
+  DndContext, DragOverlay, KeyboardSensor, MouseSensor, TouchSensor, closestCorners, pointerWithin, useDraggable, useDroppable, useSensor, useSensors,
   type CollisionDetection, type DragEndEvent, type DragStartEvent,
 } from '@dnd-kit/core';
 
@@ -10,7 +10,7 @@ import {
 // to the nearest column.
 const collision: CollisionDetection = (args) => (args.pointerCoordinates ? pointerWithin(args) : closestCorners(args));
 import { toast } from 'sonner';
-import { Briefcase, CalendarDays, Columns3, List, Plus, Search, ThumbsDown, Trophy } from 'lucide-react';
+import { Briefcase, CalendarDays, Columns3, List, MoreHorizontal, Plus, Search, ThumbsDown, Trophy } from 'lucide-react';
 import { DEAL_STATUSES, LOST_REASONS, type Deal, type Stage } from '@crm/shared';
 import { api } from '@/lib/api';
 import { cn, day, isOverdue, money } from '@/lib/utils';
@@ -19,7 +19,7 @@ import { useUi } from '@/stores/ui';
 import { Button } from '@/components/ui/button';
 import { Avatar, Card, EmptyState, PageHeader, Skeleton } from '@/components/ui/display';
 import { Field, Input, Select } from '@/components/ui/form';
-import { Dialog, DialogContent, DialogFooter } from '@/components/ui/overlay';
+import { Dialog, DialogContent, DialogFooter, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/overlay';
 import { ListPage, type Column } from '@/components/data/list-page';
 import { RiskFlag, StatusBadge } from '@/components/records/badges';
 import { UserChip } from '@/components/records/pickers';
@@ -36,7 +36,7 @@ export function DealsPage() {
   const activePipeline = pipelineId || pipelines.find((p) => p.isDefault)?.id || pipelines[0]?.id || '';
   return (
     <>
-      <PageHeader title="Deals" description="Drag deals between stages. Drop on Won or Lost to close them."
+      <PageHeader title="Deals" description={dealsView === 'board' ? 'Drag a deal to move it, or use the menu on its card.' : 'Every deal in this pipeline.'}
         actions={<>
           {pipelines.length > 1 && (
             <Select aria-label="Pipeline" value={activePipeline} onChange={(e) => setPipelineId(e.target.value)} className="w-44">
@@ -67,7 +67,12 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
   const { data, isLoading } = useQuery({ queryKey: key, queryFn: () => api.get<Board>('/deals/board', { pipelineId, ownerId, q: debounced }), enabled: !!pipelineId });
   const [active, setActive] = React.useState<Deal | null>(null);
   const [losing, setLosing] = React.useState<Deal | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor));
+  // Touch needs a short press-and-hold so a swipe over a card still scrolls the page.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
   const currency = me?.org.currency ?? 'USD';
 
   const moveLocal = (dealId: string, toStageId: string | null) => {
@@ -87,16 +92,18 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
   };
   const refresh = () => { qc.invalidateQueries({ queryKey: ['/deals'] }); qc.invalidateQueries({ queryKey: ['dashboard'] }); };
 
-  const onDragEnd = async (e: DragEndEvent) => {
+  const onDragEnd = (e: DragEndEvent) => {
     setActive(null);
-    const deal = e.active.data.current?.deal as Deal | undefined;
-    const target = e.over?.id as string | undefined;
+    void move(e.active.data.current?.deal as Deal | undefined, e.over?.id as string | undefined);
+  };
+  /** Move a deal to a stage id, or close it with 'won' / 'lost'. Shared by drag and the card menu. */
+  const move = async (deal: Deal | undefined, target: string | undefined) => {
     if (!deal || !target || target === deal.stageId) return;
     if (target === 'lost') { setLosing(deal); return; }
     const snapshot = qc.getQueryData<Board>(key);
     if (target === 'won') {
       moveLocal(deal.id, null);
-      try { await api.post(`/deals/${deal.id}/close`, { status: 'won' }); toast.success(`🎉 ${deal.title} won`); refresh(); }
+      try { await api.post(`/deals/${deal.id}/close`, { status: 'won' }); toast.success(`${deal.title} won`); refresh(); }
       catch (err) { qc.setQueryData(key, snapshot); toast.error((err as Error).message); }
       return;
     }
@@ -109,7 +116,7 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="relative w-full sm:w-64">
+        <div className="relative min-w-0 flex-1 sm:w-64 sm:flex-none">
           <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter deals…" className="pl-8" aria-label="Filter deals" />
         </div>
@@ -117,10 +124,10 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
           <option value="">All owners</option><option value="me">My deals</option>{users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
         </Select>
         {totals && (
-          <p className="ml-auto text-sm text-muted-foreground">
+          <p className="w-full text-sm text-muted-foreground sm:ml-auto sm:w-auto">
             <span className="font-semibold text-foreground tabular">{totals.count}</span> open ·{' '}
             <span className="font-semibold text-foreground tabular">{money(totals.value, currency, true)}</span> pipeline ·{' '}
-            <span className="font-semibold text-foreground tabular">{money(totals.weighted, currency, true)}</span> weighted forecast
+            <span className="font-semibold text-foreground tabular">{money(totals.weighted, currency, true)}</span> weighted
           </p>
         )}
       </div>
@@ -130,13 +137,13 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
         <Card><EmptyState icon={Briefcase} title="No pipeline yet" description="Create one in Settings → Pipelines." /></Card>
       ) : (
         <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e: DragStartEvent) => setActive(e.active.data.current?.deal ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setActive(null)}>
-          <div className="-mx-3 flex gap-3 overflow-x-auto px-3 pb-4 sm:-mx-5 sm:px-5 scrollbar-thin" role="list" aria-label="Pipeline stages">
+          <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-4 sm:-mx-5 sm:snap-none sm:px-5 scrollbar-thin" role="list" aria-label="Pipeline stages">
             {data.stages.map((s) => (
-              <StageColumn key={s.id} stage={s} currency={currency} onAdd={() => quick('deal', { pipelineId: data.pipeline!.id, stageId: s.id })} />
+              <StageColumn key={s.id} stage={s} stages={data.stages} currency={currency} onMove={move} onAdd={() => quick('deal', { pipelineId: data.pipeline!.id, stageId: s.id })} />
             ))}
           </div>
           {active && (
-            <div className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-[min(32rem,calc(100vw-2rem))] gap-3">
+            <div className="fixed inset-x-0 bottom-20 z-40 mx-auto flex w-[min(32rem,calc(100vw-2rem))] gap-3 lg:bottom-4">
               <CloseZone id="won" label="Won" icon={Trophy} className="border-success text-success" />
               <CloseZone id="lost" label="Lost" icon={ThumbsDown} className="border-destructive text-destructive" />
             </div>
@@ -149,11 +156,13 @@ function BoardView({ pipelineId }: { pipelineId: string }) {
   );
 }
 
-function StageColumn({ stage, currency, onAdd }: { stage: BoardStage; currency: string; onAdd: () => void }) {
+type MoveFn = (deal: Deal, target: string) => void;
+
+function StageColumn({ stage, stages, currency, onAdd, onMove }: { stage: BoardStage; stages: BoardStage[]; currency: string; onAdd: () => void; onMove: MoveFn }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
   return (
     <section ref={setNodeRef} role="listitem" aria-label={`${stage.name}: ${stage.count} deals`}
-      className={cn('flex w-72 shrink-0 flex-col rounded-xl border bg-muted/40 transition-colors', isOver && 'border-primary bg-primary/5')}>
+      className={cn('flex w-[82vw] max-w-72 shrink-0 snap-start flex-col rounded-xl border bg-muted/40 transition-colors sm:w-72', isOver && 'border-accent bg-accent/5')}>
       <header className="border-b px-3 py-2.5">
         <div className="flex items-center justify-between gap-2">
           <h2 className="truncate text-sm font-semibold">{stage.name}</h2>
@@ -162,28 +171,47 @@ function StageColumn({ stage, currency, onAdd }: { stage: BoardStage; currency: 
         <p className="mt-0.5 text-xs text-muted-foreground tabular">{money(stage.value, currency, true)} · {stage.probability}% · {money(stage.weighted, currency, true)} weighted</p>
       </header>
       <div className="flex min-h-[8rem] flex-1 flex-col gap-2 p-2">
-        {stage.deals.map((d) => <DraggableDeal key={d.id} deal={d} currency={currency} />)}
-        <button onClick={onAdd} className="rounded-md border border-dashed py-2 text-xs text-muted-foreground hover:border-primary hover:text-primary"><Plus className="mr-1 inline size-3" />Add deal</button>
+        {stage.deals.map((d) => <DraggableDeal key={d.id} deal={d} currency={currency} stages={stages} onMove={onMove} />)}
+        <button onClick={onAdd} className="rounded-md border border-dashed py-2 text-xs text-muted-foreground hover:border-foreground hover:text-foreground"><Plus className="mr-1 inline size-3" />Add deal</button>
       </div>
     </section>
   );
 }
 
-function DraggableDeal({ deal, currency }: { deal: Deal; currency: string }) {
+function DraggableDeal({ deal, currency, stages, onMove }: { deal: Deal; currency: string; stages: BoardStage[]; onMove: MoveFn }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: deal.id, data: { deal } });
   return (
-    <div ref={setNodeRef} {...listeners} {...attributes} aria-roledescription="Draggable deal" className={cn('touch-none', isDragging && 'opacity-30')}>
-      <DealCard deal={deal} currency={currency} />
+    <div ref={setNodeRef} {...listeners} {...attributes} aria-roledescription="Draggable deal" className={cn('select-none [-webkit-touch-callout:none]', isDragging && 'opacity-30')}>
+      <DealCard deal={deal} currency={currency} stages={stages} onMove={onMove} />
     </div>
   );
 }
 
-function DealCard({ deal, currency, overlay }: { deal: Deal; currency: string; overlay?: boolean }) {
+function DealCard({ deal, currency, overlay, stages, onMove }: { deal: Deal; currency: string; overlay?: boolean; stages?: BoardStage[]; onMove?: MoveFn }) {
+  // Links and the menu must not start a drag.
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  const noDrag = { onPointerDown: stop, onMouseDown: stop, onTouchStart: stop, onKeyDown: stop };
   return (
-    <article className={cn('rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md', overlay && 'rotate-2 shadow-xl ring-2 ring-primary')}>
+    <article className={cn('rounded-lg border bg-card p-3', overlay && 'rotate-2 shadow-xl ring-2 ring-accent')}>
       <div className="flex items-start justify-between gap-2">
-        <Link to={`/deals/${deal.id}`} className="line-clamp-2 text-sm font-medium hover:underline" onPointerDown={(e) => e.stopPropagation()}>{deal.title}</Link>
-        <RiskFlag risk={deal.risk} />
+        <Link to={`/deals/${deal.id}`} className="line-clamp-2 text-sm font-medium hover:underline" draggable={false} {...noDrag}>{deal.title}</Link>
+        <span className="flex shrink-0 items-center gap-1">
+          <RiskFlag risk={deal.risk} />
+          {stages && onMove && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button {...noDrag} aria-label={`Move ${deal.title}`} className="-mr-1.5 -mt-1.5 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"><MoreHorizontal className="size-4" /></button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>Move to</DropdownMenuLabel>
+                {stages.filter((st) => st.id !== deal.stageId).map((st) => <DropdownMenuItem key={st.id} onSelect={() => onMove(deal, st.id)}>{st.name}</DropdownMenuItem>)}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => onMove(deal, 'won')}><Trophy />Mark won</DropdownMenuItem>
+                <DropdownMenuItem destructive onSelect={() => onMove(deal, 'lost')}><ThumbsDown />Mark lost</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </span>
       </div>
       {deal.company && <p className="mt-0.5 truncate text-xs text-muted-foreground">{deal.company.name}</p>}
       <div className="mt-2 flex items-center justify-between gap-2 text-xs">
@@ -202,7 +230,7 @@ function DealCard({ deal, currency, overlay }: { deal: Deal; currency: string; o
 function CloseZone({ id, label, icon: Icon, className }: { id: string; label: string; icon: typeof Trophy; className: string }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className={cn('flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed bg-card/95 py-4 text-sm font-semibold shadow-lg backdrop-blur', className, isOver && 'scale-105 bg-card')}>
+    <div ref={setNodeRef} className={cn('flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed bg-card py-4 text-sm font-semibold shadow-lg transition-transform', className, isOver && 'scale-105 bg-card')}>
       <Icon className="size-5" />{label}
     </div>
   );

@@ -1,13 +1,10 @@
 import * as React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Funnel, FunnelChart, LabelList, Legend, Pie, PieChart, PolarAngleAxis,
-  RadialBar, RadialBarChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis,
-} from 'recharts';
-import {
-  Activity as ActivityIcon, AlertTriangle, ArrowDownRight, ArrowUpRight, Briefcase, CalendarClock, CheckSquare, Clock, Flame,
-  Gauge, LifeBuoy, ListChecks, Minus, Phone, Plus, Rocket, Target, TrendingUp, Users,
+  Activity as ActivityIcon, AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, Briefcase, CalendarClock, Check, CheckSquare, Clock, Flame,
+  Gauge, LifeBuoy, ListChecks, Minus, Phone, Plus, Rocket, SlidersHorizontal, Target, Users,
 } from 'lucide-react';
 import { startOfMonth, startOfQuarter, startOfYear, subDays } from 'date-fns';
 import { labelize, type DashboardData, type Kpi, type NextBestAction } from '@crm/shared';
@@ -15,14 +12,16 @@ import { api } from '@/lib/api';
 import { ago, cn, fullName, money, num, pct } from '@/lib/utils';
 import { useCan, useMe, usePipelines, useTeams, useUsers } from '@/hooks/data';
 import { Button } from '@/components/ui/button';
-import { Card, CardBody, CardHeader, EmptyState, PageHeader, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/display';
-import { Select } from '@/components/ui/form';
-import { Tooltip } from '@/components/ui/overlay';
+import { Card, CardBody, CardHeader, EmptyState, PageHeader, Progress, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/display';
+import { Field, Select } from '@/components/ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/overlay';
 import { ACTIVITY_ICON, LogActivityDialog } from '@/components/records/activity';
 import { useQuickCreate } from '@/features/forms';
 
+const RevenueChart = React.lazy(() => import('./dashboard-charts').then((m) => ({ default: m.RevenueChart })));
+const OwnerChart = React.lazy(() => import('./dashboard-charts').then((m) => ({ default: m.OwnerChart })));
+
 type Dash = DashboardData & { view: 'my' | 'team'; canViewTeam: boolean; orgEmpty: boolean };
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))', 'hsl(var(--chart-6))'];
 const PERIODS = {
   month: { label: 'This month', from: () => startOfMonth(new Date()) },
   last30: { label: 'Last 30 days', from: () => subDays(new Date(), 30) },
@@ -31,6 +30,7 @@ const PERIODS = {
 } as const;
 type PeriodKey = keyof typeof PERIODS;
 const LOWER_IS_BETTER = new Set(['velocity', 'response']);
+const HEADLINE = ['revenue', 'pipeline', 'winRate', 'quota'];
 
 function formatKpi(k: Kpi, currency: string) {
   switch (k.format) {
@@ -60,55 +60,80 @@ function Trend({ k }: { k: Kpi }) {
   );
 }
 
-function KpiCard({ k, currency, icon: Icon, action }: { k: Kpi; currency: string; icon: typeof TrendingUp; action?: React.ReactNode }) {
+// One meaning per colour: red is late, amber is at risk, green is money about
+// to land, blue is new.
+const ACTION_META: Record<NextBestAction['kind'], { icon: typeof Clock; tone: string; label: string; open: string }> = {
+  overdue_task: { icon: Clock, tone: 'text-destructive', label: 'Overdue task', open: 'Open' },
+  sla_breach: { icon: LifeBuoy, tone: 'text-destructive', label: 'Support SLA', open: 'Open ticket' },
+  closing_soon: { icon: CalendarClock, tone: 'text-success', label: 'Closing soon', open: 'Open deal' },
+  stalled_deal: { icon: AlertTriangle, tone: 'text-warning', label: 'Stalled deal', open: 'Open deal' },
+  at_risk: { icon: AlertTriangle, tone: 'text-warning', label: 'At risk', open: 'Open deal' },
+  lead_follow_up: { icon: Flame, tone: 'text-accent', label: 'New lead', open: 'Open lead' },
+};
+
+/** Marks a task done from the dashboard, with undo. */
+function useCompleteTask() {
+  const qc = useQueryClient();
+  const set = async (id: string, done: boolean) => {
+    try {
+      await api.patch(`/tasks/${id}`, { status: done ? 'done' : 'todo' });
+      qc.invalidateQueries({ queryKey: ['dashboard'] });
+      qc.invalidateQueries({ queryKey: ['/tasks'] });
+      if (done) toast.success('Task completed', { action: { label: 'Undo', onClick: () => set(id, false) } });
+    } catch (e) { toast.error((e as Error).message); }
+  };
+  return (id: string) => set(id, true);
+}
+
+/** The single most useful thing to do right now, with the one action that does it. */
+function NextHero({ action, position, total, onLogCall, onSkip }: {
+  action: NextBestAction; position: number; total: number; onLogCall: (a: NextBestAction) => void; onSkip: () => void;
+}) {
+  const quick = useQuickCreate((s) => s.open);
+  const complete = useCompleteTask();
+  const meta = ACTION_META[action.kind];
+  const canCall = action.entity.type === 'deal' || action.entity.type === 'lead';
   return (
-    <Card className="p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium text-muted-foreground">{k.label}</p>
-        <span className="rounded-md bg-primary/10 p-1.5 text-primary"><Icon className="size-3.5" aria-hidden /></span>
+    <Card className="p-5 sm:p-7">
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <p className={cn('inline-flex items-center gap-1.5 font-medium', meta.tone)}><meta.icon className="size-3.5" aria-hidden />{meta.label}</p>
+        <p className="text-muted-foreground tabular">{position} of {total}</p>
       </div>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular">{formatKpi(k, currency)}</p>
-      <div className="mt-1 flex items-center justify-between gap-2"><span className="flex items-center gap-1.5"><Trend k={k} /><span className="text-xs text-muted-foreground">vs prev.</span></span>{action}</div>
+      <h2 className="mt-3 font-display text-[1.75rem] leading-[1.1] tracking-tight sm:text-4xl">{action.title}</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{action.reason}</p>
+      <div className="mt-5 flex flex-wrap items-center gap-2 [&>*]:flex-1 sm:[&>*]:flex-none [&>*:first-child]:basis-full sm:[&>*:first-child]:basis-auto">
+        {action.entity.type === 'task' ? (
+          <Button onClick={() => complete(action.entity.id)}><Check />Mark done</Button>
+        ) : canCall ? (
+          <Button onClick={() => onLogCall(action)}><Phone />Log a call</Button>
+        ) : (
+          <Button asChild><Link to={action.link}>{meta.open}<ArrowRight /></Link></Button>
+        )}
+        {(action.entity.type === 'task' || canCall) && <Button asChild variant="outline"><Link to={action.link}>{meta.open}</Link></Button>}
+        {action.entity.type !== 'task' && (
+          <Button variant="ghost" onClick={() => quick('task', { [`${action.entity.type}Id`]: action.entity.id, title: `Follow up: ${action.title}` })}><CheckSquare />Add task</Button>
+        )}
+        {total > 1 && <Button variant="ghost" className="sm:ml-auto" onClick={onSkip}>Skip</Button>}
+      </div>
     </Card>
   );
 }
 
-const ACTION_META: Record<NextBestAction['kind'], { icon: typeof Clock; tone: string; label: string }> = {
-  overdue_task: { icon: Clock, tone: 'text-destructive bg-destructive/10', label: 'Overdue task' },
-  sla_breach: { icon: LifeBuoy, tone: 'text-destructive bg-destructive/10', label: 'Support SLA' },
-  closing_soon: { icon: CalendarClock, tone: 'text-success bg-success/10', label: 'Closing soon' },
-  stalled_deal: { icon: AlertTriangle, tone: 'text-warning bg-warning/10', label: 'Stalled deal' },
-  at_risk: { icon: AlertTriangle, tone: 'text-warning bg-warning/10', label: 'At risk' },
-  lead_follow_up: { icon: Flame, tone: 'text-chart-4 bg-chart-4/10', label: 'Lead follow-up' },
-};
-
-function NextActions({ actions, onLogCall }: { actions: NextBestAction[]; onLogCall: (a: NextBestAction) => void }) {
-  const quick = useQuickCreate((s) => s.open);
-  if (!actions.length) {
-    return <EmptyState icon={ListChecks} title="You're all caught up" description="Nothing urgent right now. New overdue tasks, stalled deals and hot leads will appear here." className="py-8" />;
-  }
+function NextActions({ actions, onPick }: { actions: NextBestAction[]; onPick: (a: NextBestAction) => void }) {
+  if (!actions.length) return <p className="py-6 text-center text-sm text-muted-foreground">Nothing else is waiting.</p>;
   return (
     <ul className="divide-y">
       {actions.map((a) => {
         const meta = ACTION_META[a.kind];
         return (
-          <li key={a.id} className="group flex items-center gap-3 py-2.5">
-            <span className={cn('rounded-md p-1.5', meta.tone)}><meta.icon className="size-4" aria-hidden /></span>
-            <div className="min-w-0 flex-1">
-              <Link to={a.link} className="block truncate text-sm font-medium hover:underline">{a.title}</Link>
-              <p className="truncate text-xs text-muted-foreground"><span className="font-medium">{meta.label}</span> · {a.reason}</p>
-            </div>
-            <div className="flex shrink-0 gap-1 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-              {(a.entity.type === 'deal' || a.entity.type === 'lead') && (
-                <Tooltip content="Log a call"><Button size="icon-sm" variant="ghost" onClick={() => onLogCall(a)} aria-label={`Log call for ${a.title}`}><Phone /></Button></Tooltip>
-              )}
-              {a.entity.type !== 'task' && (
-                <Tooltip content="Create follow-up task">
-                  <Button size="icon-sm" variant="ghost" aria-label={`Create task for ${a.title}`}
-                    onClick={() => quick('task', { [`${a.entity.type}Id`]: a.entity.id, title: `Follow up: ${a.title}` })}><CheckSquare /></Button>
-                </Tooltip>
-              )}
-            </div>
+          <li key={a.id}>
+            <button onClick={() => onPick(a)} className="flex w-full items-center gap-3 py-3 text-left">
+              <meta.icon className={cn('size-4 shrink-0', meta.tone)} aria-hidden />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{a.title}</span>
+                <span className="block truncate text-xs text-muted-foreground">{meta.label} · {a.reason}</span>
+              </span>
+            </button>
           </li>
         );
       })}
@@ -148,35 +173,59 @@ function Onboarding() {
     { icon: Rocket, title: 'Automate a follow-up', to: '/automations' },
   ];
   return (
-    <Card className="mb-5 border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
-      <CardHeader title="Welcome to your new CRM" description="Your workspace is empty and ready. These steps get you to a useful dashboard fast." icon={Rocket} />
-      <CardBody>
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+    <Card className="p-5 sm:p-7">
+      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-accent"><Rocket className="size-3.5" aria-hidden />Getting started</p>
+      <h2 className="mt-3 font-display text-[1.75rem] leading-[1.1] tracking-tight sm:text-4xl">Add your first contact</h2>
+      <p className="mt-2 text-sm text-muted-foreground">Your workspace is empty. Once it has people, deals and tasks, this card tells you what to do next.</p>
+      <div className="mt-5">
+        <ol className="grid gap-2 sm:grid-cols-2">
           {steps.map((s, i) => {
-            const inner = <><span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{i + 1}</span><s.icon className="size-4 text-muted-foreground" aria-hidden /><span className="text-left">{s.title}</span></>;
-            const cls = 'flex h-full w-full items-center gap-2 rounded-lg border bg-card p-3 text-sm font-medium transition-colors hover:border-primary hover:bg-primary/5';
+            const inner = <><span className="flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium text-muted-foreground">{i + 1}</span><s.icon className="size-4 text-muted-foreground" aria-hidden /><span className="text-left">{s.title}</span></>;
+            const cls = 'flex h-full min-h-11 w-full items-center gap-2 rounded-lg border bg-card p-3 text-sm font-medium transition-colors hover:bg-secondary';
             return <li key={s.title}>{s.to ? <Link to={s.to} className={cls}>{inner}</Link> : <button onClick={s.action} className={cls}>{inner}</button>}</li>;
           })}
         </ol>
-      </CardBody>
+      </div>
     </Card>
   );
 }
 
-/** Running totals, so this period and the previous one compare as trend lines. */
-function cumulative(series: DashboardData['revenueSeries']) {
-  let rev = 0, prev = 0;
-  return series.map((p) => ({ date: p.date, revenue: (rev += p.revenue), previous: (prev += p.previous) }));
+/** Renders its children (and so downloads their code) only once they are about to scroll into view. */
+function WhenVisible({ children, fallback }: { children: React.ReactNode; fallback: React.ReactNode }) {
+  const [seen, setSeen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (seen || !ref.current) return;
+    const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) setSeen(true); }, { rootMargin: '300px' });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [seen]);
+  if (!seen) return <><div ref={ref} className="-mb-5 h-px" aria-hidden />{fallback}</>;
+  return <React.Suspense fallback={fallback}>{children}</React.Suspense>;
 }
 
-const tooltipStyle = { contentStyle: { background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12, color: 'hsl(var(--popover-foreground))' } };
+/** Simple labelled bars: no charting library needed for a ranked list. */
+function BarList({ rows }: { rows: { label: string; value: number; detail: string }[] }) {
+  const max = Math.max(1, ...rows.map((r) => r.value));
+  return (
+    <ul className="space-y-3">
+      {rows.map((r) => (
+        <li key={r.label}>
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="truncate">{r.label}</span><span className="shrink-0 text-xs text-muted-foreground tabular">{r.detail}</span>
+          </div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-chart-1" style={{ width: `${(r.value / max) * 100}%` }} /></div>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function DashboardPage() {
   const { data: me } = useMe();
   const { data: pipelines = [] } = usePipelines();
   const { data: teams = [] } = useTeams();
   const { data: users = [] } = useUsers();
-  const navigate = useNavigate();
   const quick = useQuickCreate((s) => s.open);
   // Role-based default: managers and executives land on the team view.
   const [view, setView] = React.useState<'my' | 'team'>(() =>
@@ -185,207 +234,168 @@ export function DashboardPage() {
   const [filters, setFilters] = React.useState({ ownerId: '', teamId: '', pipelineId: '', territory: '' });
   const [showAll, setShowAll] = React.useState(false);
   const [logFor, setLogFor] = React.useState<NextBestAction | null>(null);
+  const [focusId, setFocusId] = React.useState<string | null>(null);
   const currency = me?.org.currency ?? 'USD';
   const canTeam = !!me?.permissions.includes('reports:team');
 
   const params = { view, from: PERIODS[period].from().toISOString(), ...(view === 'team' ? filters : { pipelineId: filters.pipelineId }) };
-  const { data, isLoading, isError, error } = useQuery({ queryKey: ['dashboard', params], queryFn: () => api.get<Dash>('/dashboard', params), refetchInterval: 60_000 });
+  const { data, isLoading, isError, error, refetch } = useQuery({ queryKey: ['dashboard', params], queryFn: () => api.get<Dash>('/dashboard', params), refetchInterval: 60_000 });
   const territories = [...new Set(users.map((u) => u.territory).filter(Boolean))] as string[];
   const hour = new Date().getHours();
   const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const isEmpty = !!data?.orgEmpty;
-  const kpi = (key: string) => data?.kpis.find((k) => k.key === key);
+  const actions = data?.actions ?? [];
+  const focusIndex = Math.max(0, actions.findIndex((a) => a.id === focusId));
+  const focus = actions[focusIndex];
+  const activeFilters = Object.entries(filters).filter(([k, v]) => v && (view === 'team' || k === 'pipelineId')).length;
+  const hasFilters = pipelines.length > 1 || view === 'team';
 
   return (
     <>
-      <PageHeader title={`${greet}, ${me?.name.split(' ')[0] ?? ''}`} description={view === 'my' ? 'Your numbers and what needs your attention.' : 'How the team is tracking.'}
+      <PageHeader title={`${greet}, ${me?.name.split(' ')[0] ?? ''}`}
+        description={view === 'my' ? 'Here is what needs you, most urgent first.' : 'Here is what needs the team, most urgent first.'}
         actions={
           <>
             {canTeam && (
               <div className="inline-flex rounded-md border bg-card p-0.5" role="group" aria-label="Dashboard view">
                 {(['my', 'team'] as const).map((v) => (
                   <button key={v} onClick={() => setView(v)} aria-pressed={view === v}
-                    className={cn('rounded px-3 py-1 text-sm font-medium', view === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}>
-                    {v === 'my' ? 'My dashboard' : 'Team dashboard'}
+                    className={cn('rounded px-3 py-1 text-sm font-medium', view === v ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground')}>
+                    {v === 'my' ? 'Mine' : 'Team'}
                   </button>
                 ))}
               </div>
             )}
-            <Select aria-label="Date range" value={period} onChange={(e) => setPeriod(e.target.value as PeriodKey)} className="w-36">
+            <Select aria-label="Date range" value={period} onChange={(e) => setPeriod(e.target.value as PeriodKey)} className="w-40 sm:w-36">
               {Object.entries(PERIODS).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}
             </Select>
-            {pipelines.length > 1 && (
-              <Select aria-label="Pipeline" value={filters.pipelineId} onChange={(e) => setFilters({ ...filters, pipelineId: e.target.value })} className="w-40">
-                <option value="">Default pipeline</option>{pipelines.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </Select>
-            )}
-            {view === 'team' && (
-              <>
-                <Select aria-label="Owner" value={filters.ownerId} onChange={(e) => setFilters({ ...filters, ownerId: e.target.value })} className="w-36">
-                  <option value="">All owners</option>{users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-                </Select>
-                {teams.length > 0 && (
-                  <Select aria-label="Team" value={filters.teamId} onChange={(e) => setFilters({ ...filters, teamId: e.target.value })} className="w-32">
-                    <option value="">All teams</option>{teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </Select>
-                )}
-                {territories.length > 0 && (
-                  <Select aria-label="Territory" value={filters.territory} onChange={(e) => setFilters({ ...filters, territory: e.target.value })} className="w-36">
-                    <option value="">All territories</option>{territories.map((t) => <option key={t}>{t}</option>)}
-                  </Select>
-                )}
-              </>
+            {hasFilters && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label={`Filters${activeFilters ? `, ${activeFilters} active` : ''}`} className="relative">
+                    <SlidersHorizontal />
+                    {activeFilters > 0 && <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-accent-foreground">{activeFilters}</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-64 space-y-3">
+                  {pipelines.length > 1 && (
+                    <Field label="Pipeline"><Select value={filters.pipelineId} onChange={(e) => setFilters({ ...filters, pipelineId: e.target.value })}>
+                      <option value="">Default pipeline</option>{pipelines.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </Select></Field>
+                  )}
+                  {view === 'team' && (
+                    <>
+                      <Field label="Owner"><Select value={filters.ownerId} onChange={(e) => setFilters({ ...filters, ownerId: e.target.value })}>
+                        <option value="">All owners</option>{users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
+                      </Select></Field>
+                      {teams.length > 0 && (
+                        <Field label="Team"><Select value={filters.teamId} onChange={(e) => setFilters({ ...filters, teamId: e.target.value })}>
+                          <option value="">All teams</option>{teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </Select></Field>
+                      )}
+                      {territories.length > 0 && (
+                        <Field label="Territory"><Select value={filters.territory} onChange={(e) => setFilters({ ...filters, territory: e.target.value })}>
+                          <option value="">All territories</option>{territories.map((t) => <option key={t}>{t}</option>)}
+                        </Select></Field>
+                      )}
+                    </>
+                  )}
+                  {activeFilters > 0 && <Button variant="ghost" size="sm" className="w-full" onClick={() => setFilters({ ownerId: '', teamId: '', pipelineId: '', territory: '' })}>Clear filters</Button>}
+                </PopoverContent>
+              </Popover>
             )}
           </>
         } />
 
-      {isError && <Card><EmptyState icon={AlertTriangle} title="Couldn't load the dashboard" description={(error as Error).message} /></Card>}
-      {isEmpty && <Onboarding />}
-
-      {/* KPIs: most critical, top-left */}
-      <section aria-label="Key metrics" className="mb-5">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {isLoading || !data ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-[104px] rounded-xl" />) : (
-            <>
-              <KpiCard k={kpi('revenue')!} currency={currency} icon={TrendingUp} />
-              <KpiCard k={kpi('pipeline')!} currency={currency} icon={Briefcase} action={<Button size="sm" variant="ghost" className="h-6 px-1.5 text-xs" onClick={() => quick('deal')}><Plus className="size-3" />Deal</Button>} />
-              <KpiCard k={kpi('winRate')!} currency={currency} icon={Target} />
-              <KpiCard k={kpi('quota')!} currency={currency} icon={Gauge} />
-            </>
-          )}
-        </div>
-        {data && (
-          <>
-            {showAll && (
-              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {data.kpis.filter((k) => !['revenue', 'pipeline', 'winRate', 'quota'].includes(k.key)).map((k) => (
-                  <Card key={k.key} className="p-3">
-                    <p className="truncate text-xs text-muted-foreground">{k.label}</p>
-                    <p className="mt-0.5 text-lg font-semibold tabular">{formatKpi(k, currency)}</p>
-                    <Trend k={k} />
-                  </Card>
-                ))}
-              </div>
-            )}
-            <button className="mt-2 text-xs font-medium text-primary hover:underline" onClick={() => setShowAll((s) => !s)} aria-expanded={showAll}>
-              {showAll ? 'Show fewer metrics' : 'Show all 10 metrics'}
-            </button>
-          </>
-        )}
-      </section>
+      {isError && (
+        <Card className="mb-5"><EmptyState icon={AlertTriangle} title="Couldn't load the dashboard" description={(error as Error).message}
+          action={<Button variant="outline" onClick={() => refetch()}>Try again</Button>} /></Card>
+      )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {/* Next best actions + activity */}
-        <Card className="lg:col-span-2">
-          <Tabs defaultValue="actions">
-            <CardHeader title="What to do next" description="Ranked by urgency and deal value" icon={ListChecks}
-              action={<TabsList className="shrink-0"><TabsTrigger value="actions">Actions{data?.actions.length ? ` (${data.actions.length})` : ''}</TabsTrigger><TabsTrigger value="activity">Activity</TabsTrigger></TabsList>} />
-            <CardBody className="pt-1">
-              {isLoading ? <Skeleton className="h-64" /> : (
-                <>
-                  <TabsContent value="actions" className="mt-0"><NextActions actions={data?.actions ?? []} onLogCall={setLogFor} /></TabsContent>
-                  <TabsContent value="activity" className="mt-2"><ActivityFeed items={data?.activity ?? []} /></TabsContent>
-                </>
-              )}
-            </CardBody>
-          </Tabs>
-        </Card>
+        {/* What to do next: the reason this screen exists */}
+        <section aria-label="What to do next" className="space-y-5 lg:col-span-2">
+          {isLoading ? <Skeleton className="h-56 rounded-xl" />
+            : isEmpty ? <Onboarding />
+            : focus ? <NextHero action={focus} position={focusIndex + 1} total={actions.length} onLogCall={setLogFor}
+                onSkip={() => setFocusId(actions[(focusIndex + 1) % actions.length].id)} />
+            : !isError && (
+              <Card><EmptyState icon={ListChecks} title="You're all caught up" description="Nothing is overdue, stalled or waiting on a reply. New items appear here as they come up."
+                action={<Button onClick={() => quick('deal')}><Plus />New deal</Button>} /></Card>
+            )}
 
-        {/* Coverage gauge */}
-        <Card>
-          <CardHeader title="Quota & pipeline coverage" icon={Gauge} description={PERIODS[period].label}
-            action={<Button size="sm" variant="ghost" onClick={() => navigate('/deals')}>Pipeline</Button>} />
-          <CardBody>
-            {isLoading || !data ? <Skeleton className="h-56" /> : <Coverage data={data} currency={currency} />}
-          </CardBody>
-        </Card>
+          {!isEmpty && (
+            <Card>
+              <Tabs defaultValue="actions">
+                <CardHeader title="Up next" description="Ranked by urgency and deal value"
+                  action={<TabsList className="shrink-0"><TabsTrigger value="actions">Queue{actions.length > 1 ? ` (${actions.length - 1})` : ''}</TabsTrigger><TabsTrigger value="activity">Activity</TabsTrigger></TabsList>} />
+                <CardBody className="pt-1">
+                  {isLoading ? <Skeleton className="h-48" /> : (
+                    <>
+                      <TabsContent value="actions" className="mt-0">
+                        <NextActions actions={actions.filter((a) => a.id !== focus?.id)} onPick={(a) => { setFocusId(a.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+                      </TabsContent>
+                      <TabsContent value="activity" className="mt-3"><ActivityFeed items={data?.activity ?? []} /></TabsContent>
+                    </>
+                  )}
+                </CardBody>
+              </Tabs>
+            </Card>
+          )}
 
-        {/* Revenue trend */}
-        <Card className="lg:col-span-2">
-          <CardHeader title="Revenue over time" description="Cumulative won revenue vs the previous period" icon={TrendingUp}
-            action={<Button size="sm" variant="ghost" onClick={() => quick('deal')}><Plus />Add deal</Button>} />
-          <CardBody className="h-72">
-            {isLoading || !data ? <Skeleton className="h-full" /> : data.revenueSeries.every((p) => !p.revenue && !p.previous)
-              ? <EmptyState icon={TrendingUp} title="No won deals in this period" description="Revenue appears here when deals are marked won." className="py-10" />
-              : (
-                <ResponsiveContainer>
-                  <AreaChart data={cumulative(data.revenueSeries)} margin={{ left: 0, right: 8, top: 8 }}>
-                    <defs><linearGradient id="rev" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} minTickGap={24} tickFormatter={(d: string) => d.length > 7 ? d.slice(5) : d} />
-                    <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} width={56} tickFormatter={(v: number) => money(v, currency, true)} />
-                    <RTooltip {...tooltipStyle} formatter={(v: number, n: string) => [money(v, currency), n === 'revenue' ? 'This period' : 'Previous period']} />
-                    <Area type="stepAfter" dataKey="previous" stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" fill="none" strokeWidth={1.5} />
-                    <Area type="stepAfter" dataKey="revenue" stroke="hsl(var(--chart-1))" fill="url(#rev)" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-          </CardBody>
-        </Card>
+          {data && !isEmpty && <WhenVisible fallback={<Skeleton className="h-80 rounded-xl" />}><RevenueChart data={data} currency={currency} /></WhenVisible>}
+        </section>
 
-        {/* Funnel */}
-        <Card>
-          <CardHeader title="Pipeline by stage" description="Open deals (count)" icon={Briefcase} action={<Button size="sm" variant="ghost" onClick={() => navigate('/deals')}>Board</Button>} />
-          <CardBody className="h-72">
-            {isLoading || !data ? <Skeleton className="h-full" /> : !data.dealsByStage.some((s) => s.count)
-              ? <EmptyState icon={Briefcase} title="No open deals" action={<Button size="sm" onClick={() => quick('deal')}><Plus />New deal</Button>} className="py-8" />
-              : (
-                <ResponsiveContainer>
-                  <FunnelChart>
-                    <RTooltip {...tooltipStyle} formatter={(_v, _n, p) => {
-                      const s = p.payload as DashboardData['dealsByStage'][number];
-                      return [`${s.count} deals · ${money(s.value, currency, true)}`, s.name];
-                    }} />
-                    <Funnel dataKey="count" data={data.dealsByStage.filter((s) => s.count).map((s, i) => ({ ...s, fill: COLORS[i % COLORS.length] }))} isAnimationActive={false}>
-                      <LabelList position="center" dataKey="name" fill="#fff" stroke="none" fontSize={11} fontWeight={600} />
-                    </Funnel>
-                  </FunnelChart>
-                </ResponsiveContainer>
-              )}
-          </CardBody>
-        </Card>
+        {/* Numbers */}
+        <aside aria-label="Key metrics" className="space-y-5">
+          <Card>
+            {isLoading || !data ? <Skeleton className="m-5 h-40" /> : (
+              <>
+                <dl className="grid grid-cols-2">
+                  {data.kpis.filter((k) => showAll || HEADLINE.includes(k.key)).map((k, i) => (
+                    <div key={k.key} className={cn('px-5 py-4', i % 2 === 1 && 'border-l', i > 1 && 'border-t')}>
+                      <dt className="truncate text-xs text-muted-foreground">{k.label}</dt>
+                      <dd className="mt-1"><span className="block text-2xl font-semibold tracking-tight tabular">{formatKpi(k, currency)}</span><Trend k={k} /></dd>
+                    </div>
+                  ))}
+                </dl>
+                {data.kpis.length > HEADLINE.length && (
+                  <button className="w-full border-t px-5 py-2.5 text-left text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setShowAll((v) => !v)} aria-expanded={showAll}>
+                    {showAll ? 'Show fewer' : `Show all ${data.kpis.length} metrics`}
+                  </button>
+                )}
+              </>
+            )}
+          </Card>
 
-        {/* By owner */}
-        <Card className="lg:col-span-2">
-          <CardHeader title="Deals by owner" description="Won this period vs open pipeline" icon={Users} />
-          <CardBody className="h-72">
-            {isLoading || !data ? <Skeleton className="h-full" /> : !data.dealsByOwner.length
-              ? <EmptyState icon={Users} title="No deals yet" description="Each rep's won and open value appears here." className="py-10" />
-              : (
-                <ResponsiveContainer>
-                  <BarChart data={data.dealsByOwner} margin={{ left: 0, right: 8, top: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} interval={0} />
-                    <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} width={56} tickFormatter={(v: number) => money(v, currency, true)} />
-                    <RTooltip {...tooltipStyle} cursor={{ fill: 'hsl(var(--muted))' }} formatter={(v: number, n: string) => [money(v, currency), labelize(n)]} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v: string) => labelize(v)} />
-                    <Bar dataKey="won" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="open" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-          </CardBody>
-        </Card>
+          <Card>
+            <CardHeader title="Quota" description={PERIODS[period].label} />
+            <CardBody>{isLoading || !data ? <Skeleton className="h-24" /> : <Coverage data={data} currency={currency} />}</CardBody>
+          </Card>
 
-        {/* Lead sources */}
-        <Card>
-          <CardHeader title="Lead sources" description="New leads this period" icon={Target} action={<Button size="sm" variant="ghost" onClick={() => quick('lead')}><Plus />Lead</Button>} />
-          <CardBody className="h-72">
-            {isLoading || !data ? <Skeleton className="h-full" /> : !data.leadSources.length
-              ? <EmptyState icon={Target} title="No new leads" description="Share your lead form from Settings → Lead capture." className="py-8" />
-              : (
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={data.leadSources} dataKey="count" nameKey="source" innerRadius="55%" outerRadius="80%" paddingAngle={2}>
-                      {data.leadSources.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                    </Pie>
-                    <RTooltip {...tooltipStyle} formatter={(v: number, n: string) => [`${v} leads`, labelize(n)]} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v: string) => labelize(v)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-          </CardBody>
-        </Card>
+          {data && !isEmpty && (
+            <>
+            <Card>
+              <CardHeader title="Pipeline by stage" description="Open deals" action={<Button asChild size="sm" variant="ghost"><Link to="/deals">Board</Link></Button>} />
+              <CardBody>
+                {!data.dealsByStage.some((st) => st.count)
+                  ? <EmptyState icon={Briefcase} title="No open deals" action={<Button size="sm" onClick={() => quick('deal')}><Plus />New deal</Button>} className="py-6" />
+                  : <BarList rows={data.dealsByStage.map((st) => ({ label: st.name, value: st.value, detail: `${st.count} · ${money(st.value, currency, true)}` }))} />}
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader title="Lead sources" description="New leads this period" />
+              <CardBody>
+                {!data.leadSources.length
+                  ? <EmptyState icon={Target} title="No new leads" description="Share your lead form from Settings → Lead capture." className="py-6" />
+                  : <BarList rows={data.leadSources.map((l) => ({ label: labelize(l.source), value: l.count, detail: String(l.count) }))} />}
+              </CardBody>
+            </Card>
+            <WhenVisible fallback={<Skeleton className="h-80 rounded-xl" />}><OwnerChart data={data} currency={currency} /></WhenVisible>
+            </>
+          )}
+        </aside>
+
       </div>
 
       {logFor && (
@@ -406,29 +416,19 @@ function Coverage({ data, currency }: { data: DashboardData; currency: string })
     return (
       <EmptyState icon={Gauge} title="No quota set"
         description={canManageUsers ? 'Set monthly quotas per user to track attainment and coverage.' : 'Ask an admin to set your monthly quota to track attainment.'}
-        action={canManageUsers && <Button asChild size="sm" variant="outline"><Link to="/settings/users">Set quotas</Link></Button>} className="py-6" />
+        action={canManageUsers && <Button asChild size="sm" variant="outline"><Link to="/settings/users">Set quotas</Link></Button>} className="py-4" />
     );
   }
   return (
     <div>
-      <div className="relative h-40">
-        <ResponsiveContainer>
-          <RadialBarChart innerRadius="72%" outerRadius="100%" data={[{ value: Math.min(100, attainment) }]} startAngle={210} endAngle={-30}>
-            <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-            <RadialBar dataKey="value" cornerRadius={8} fill={attainment >= 100 ? 'hsl(var(--success))' : 'hsl(var(--chart-1))'} background={{ fill: 'hsl(var(--muted))' }} />
-          </RadialBarChart>
-        </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-2xl font-semibold tabular">{pct(attainment)}</p>
-          <p className="text-xs text-muted-foreground">of {money(quota, currency, true)} quota</p>
-        </div>
-      </div>
-      <dl className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
-        <div><dt className="text-muted-foreground">Won</dt><dd className="font-semibold tabular">{money(won, currency, true)}</dd></div>
-        <div><dt className="text-muted-foreground">Weighted</dt><dd className="font-semibold tabular">{money(weightedPipeline, currency, true)}</dd></div>
-        <div><dt className="text-muted-foreground">Coverage</dt><dd className={cn('font-semibold tabular', coverage !== null && coverage < 3 && 'text-warning')}>{coverage === null ? 'Met' : `${num(coverage, 1)}×`}</dd></div>
+      <p className="text-sm"><span className="text-2xl font-semibold tracking-tight tabular">{pct(attainment)}</span> <span className="text-muted-foreground">of {money(quota, currency, true)}</span></p>
+      <Progress label="Quota attainment" value={attainment} tone={attainment >= 100 ? 'success' : 'primary'} className="mt-3 h-1.5" />
+      <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
+        <div><dt className="text-muted-foreground">Won</dt><dd className="mt-0.5 text-sm font-medium tabular">{money(won, currency, true)}</dd></div>
+        <div><dt className="text-muted-foreground">Weighted</dt><dd className="mt-0.5 text-sm font-medium tabular">{money(weightedPipeline, currency, true)}</dd></div>
+        <div><dt className="text-muted-foreground">Coverage</dt><dd className={cn('mt-0.5 text-sm font-medium tabular', coverage !== null && coverage < 3 && 'text-warning')}>{coverage === null ? 'Met' : `${num(coverage, 1)}×`}</dd></div>
       </dl>
-      {coverage !== null && coverage < 3 && <p className="mt-3 rounded-md bg-warning/10 px-3 py-2 text-xs text-warning">Pipeline covers less than 3× the remaining quota. Add or advance deals.</p>}
+      {coverage !== null && coverage < 3 && <p className="mt-3 text-xs text-warning">Pipeline covers less than 3× the remaining quota.</p>}
     </div>
   );
 }

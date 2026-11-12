@@ -31,7 +31,7 @@ export function DealDetailPage() {
   const remove = useDeleteRecord('/deals', 'Deal', '/deals');
   const invalidate = [['/deals'], ['dashboard']];
   const close = useAction((status: 'won' | 'open') => api.post(`/deals/${id}/close`, { status }), {
-    success: (r: any) => (r.status === 'won' ? '🎉 Deal won!' : 'Deal reopened'), invalidate,
+    success: (r: any) => (r.status === 'won' ? 'Deal won' : 'Deal reopened'), invalidate,
   });
   if (isLoading) return <DetailSkeleton />;
   if (isError || !data) return <EmptyState icon={Briefcase} title="Deal not found" />;

@@ -74,15 +74,15 @@ Everything below runs end to end against the real API. The automated tests cover
 - Contact 360 view: profile, company, deals, timeline, emails, tasks, tickets, files and AI summary
 - Duplicate detection and merge
 - Leads: rule-based scoring ★, round-robin and territory auto-assignment ★, one-click conversion to contact, company and deal ★, public capture API and hosted form ★
-- Deals: dnd-kit kanban with optimistic moves, Won/Lost drop zones and loss-reason capture, list view with inline stage edit, stage history ★, multiple pipelines, stage editor, weighted forecast
+- Deals: dnd-kit kanban with optimistic moves (mouse drag, press-and-hold on touch, or the Move menu on each card), Won/Lost drop zones and loss-reason capture, list view with inline stage edit, stage history ★, multiple pipelines, stage editor, weighted forecast
 - Activities (call, email, meeting, note), tasks with reminders and overdue views, and a day/week/month calendar
 - Email composer with templates and `{{merge_tags}}`, threaded onto records
-- Dashboard: 10 KPIs with trends, revenue trend, funnel, deals by owner, lead-source donut, quota coverage gauge, next-best-actions, activity feed, My/Team views and global filters
+- Dashboard: the top next-best-action as the main card (mark done, log a call, open, skip), the ranked queue behind it, activity feed, 10 KPIs with trends, quota coverage, pipeline by stage, lead sources, revenue trend, deals by owner, My/Team views and filters
 - Reports: 6 pre-built reports, a custom builder (entity, metric, group-by, filters, chart type), saved reports, CSV export and print-to-PDF
 - Automations: trigger → condition → action builder, recipes and run history ★
 - Products, quotes with server-computed totals ★, tickets with SLA timers ★, campaigns with ROI
 - Custom fields on contacts, companies, leads, deals and tickets, plus tags, teams, quotas, currencies and the audit log viewer
-- ⌘K command palette, notifications bell, light and dark mode, responsive layout down to 375px
+- ⌘K command palette, notifications bell, light and dark mode, and a phone layout (bottom tab bar, bottom-sheet dialogs, 44px touch targets) down to 360px
 
 ## What is stubbed
 
@@ -107,4 +107,4 @@ Everything below runs end to end against the real API. The automated tests cover
 
 The original page structure was captured with REA (`capture_browser_scenario`, Evidence `ev_51b9deca…`): a hero with sign-up, testimonials, "by the numbers", five feature tabs and a pricing comparison.
 
-The current Nexora landing page follows the later brand spec instead. Ghidra was not used: there is no native binary to analyze in a website.
+The current Nexora landing page no longer follows that structure: it is a single hero that states what the product does, with a static picture of the dashboard's next-action card.

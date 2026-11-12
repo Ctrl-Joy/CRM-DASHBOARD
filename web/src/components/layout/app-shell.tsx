@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger, Popover, PopoverContent, PopoverTrigger, SheetContent, Tooltip,
 } from '@/components/ui/overlay';
 import { useQuickCreate } from '@/features/forms';
+import { LogoMark } from './logo';
 
 interface NavItem { to: string; label: string; icon: LucideIcon; perm?: Permission }
 const NAV: { group: string; items: NavItem[] }[] = [
@@ -38,7 +39,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
 function Logo({ collapsed }: { collapsed?: boolean }) {
   return (
     <Link to="/dashboard" className="flex items-center gap-1.5 text-xl font-semibold tracking-tight text-foreground" aria-label="Nexora home">
-      <span className="text-accent" aria-hidden>✦</span>
+      <LogoMark />
       {!collapsed && <span>Nexora</span>}
     </Link>
   );
@@ -49,14 +50,14 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
     <nav className="flex-1 space-y-4 overflow-y-auto px-2 py-3 scrollbar-thin" aria-label="Main">
       {NAV.map((g) => (
         <div key={g.group || 'home'}>
-          {g.group && !collapsed && <p className="mb-1 px-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{g.group}</p>}
+          {g.group && !collapsed && <p className="mb-1 px-2.5 text-xs font-medium text-muted-foreground">{g.group}</p>}
           <ul className="space-y-0.5">
             {g.items.map((it) => {
               const link = (
                 <NavLink to={it.to} onClick={onNavigate}
-                  className={({ isActive }) => cn('flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors',
+                  className={({ isActive }) => cn('flex min-h-11 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-colors lg:min-h-0',
                     collapsed && 'justify-center px-0',
-                    isActive ? 'bg-sidebar-accent text-foreground [&_svg]:text-accent' : 'text-sidebar-foreground hover:bg-secondary hover:text-foreground')}>
+                    isActive ? 'bg-sidebar-accent text-foreground' : 'text-sidebar-foreground hover:bg-secondary hover:text-foreground')}>
                   <it.icon className="size-4 shrink-0" aria-hidden />
                   {collapsed ? <span className="sr-only">{it.label}</span> : it.label}
                 </NavLink>
@@ -86,7 +87,7 @@ function NotificationsBell() {
           {unread > 0 && <span className="absolute right-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-4 text-destructive-foreground">{unread > 9 ? '9+' : unread}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-[min(20rem,calc(100vw-1.5rem))] p-0">
         <div className="flex items-center justify-between border-b px-3 py-2">
           <p className="text-sm font-semibold">Notifications</p>
           {unread > 0 && <button className="text-xs text-primary hover:underline" onClick={() => markRead()}>Mark all read</button>}
@@ -190,7 +191,7 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="rounded-full focus-visible:ring-2 focus-visible:ring-ring" aria-label="Account menu"><Avatar name={me.name} src={me.avatarUrl} size="sm" /></button>
+        <button className="inline-flex items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-ring" aria-label="Account menu"><Avatar name={me.name} src={me.avatarUrl} size="sm" /></button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
@@ -220,13 +221,35 @@ function DemoBanner() {
   const navigate = useNavigate();
   if (me?.org.name !== 'Northwind Demo') return null;
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-accent px-4 py-1.5 text-center text-xs text-accent-foreground">
-      <span><b className="font-semibold">Live demo:</b> you're exploring a sample company as {me.name} ({me.role}). Changes are visible to other visitors.</span>
-      <button className="font-semibold underline underline-offset-2"
+    <div className="flex items-center justify-center gap-x-3 border-b bg-muted/60 px-3 text-xs text-muted-foreground">
+      <span className="truncate"><span className="font-medium text-foreground">Live demo</span><span className="hidden sm:inline"> · sample data shared with other visitors, signed in as {me.name} ({me.role})</span></span>
+      <button className="shrink-0 font-medium text-foreground underline underline-offset-2"
         onClick={async () => { await api.post('/auth/logout'); qc.clear(); navigate('/signup'); }}>
-        Create your own workspace →
+        Create your own workspace
       </button>
     </div>
+  );
+}
+
+/** Phone navigation: the four everyday screens within thumb reach, the rest under More. */
+const TABS: NavItem[] = [
+  { to: '/dashboard', label: 'Today', icon: LayoutDashboard }, { to: '/deals', label: 'Deals', icon: Briefcase },
+  { to: '/tasks', label: 'Tasks', icon: CheckSquare }, { to: '/contacts', label: 'Contacts', icon: Contact },
+];
+function BottomNav({ onMore }: { onMore: () => void }) {
+  const { pathname } = useLocation();
+  const inTabs = TABS.some((t) => pathname.startsWith(t.to));
+  const cls = (active: boolean) => cn('flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium',
+    active ? 'text-foreground' : 'text-muted-foreground');
+  return (
+    <nav aria-label="Primary" className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t bg-background pb-safe lg:hidden">
+      {TABS.map((t) => (
+        <NavLink key={t.to} to={t.to} className={({ isActive }) => cls(isActive)}>
+          {({ isActive }) => <><t.icon className="size-5" strokeWidth={isActive ? 2.25 : 1.75} aria-hidden />{t.label}</>}
+        </NavLink>
+      ))}
+      <button onClick={onMore} className={cls(!inTabs)} aria-label="More pages"><Menu className="size-5" strokeWidth={inTabs ? 1.75 : 2.25} aria-hidden />More</button>
+    </nav>
   );
 }
 
@@ -245,7 +268,7 @@ export function AppShell() {
         <div className={cn('flex h-14 items-center border-b border-sidebar-border px-4', sidebarCollapsed && 'justify-center px-0')}><Logo collapsed={sidebarCollapsed} /></div>
         <SidebarNav collapsed={sidebarCollapsed} />
         <div className="border-t border-sidebar-border p-2">
-          <NavLink to="/settings" className={({ isActive }) => cn('flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium', sidebarCollapsed && 'justify-center', isActive ? 'bg-sidebar-accent text-foreground [&_svg]:text-accent' : 'text-sidebar-foreground hover:bg-secondary')}>
+          <NavLink to="/settings" className={({ isActive }) => cn('flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium', sidebarCollapsed && 'justify-center', isActive ? 'bg-sidebar-accent text-foreground' : 'text-sidebar-foreground hover:bg-secondary')}>
             <Settings className="size-4" aria-hidden />{sidebarCollapsed ? <span className="sr-only">Settings</span> : 'Settings'}
           </NavLink>
           <button onClick={toggleSidebar} className={cn('mt-1 flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground hover:bg-secondary', sidebarCollapsed && 'justify-center')}
@@ -256,20 +279,20 @@ export function AppShell() {
       </aside>
       {/* mobile sidebar */}
       <Dialog open={mobileNavOpen} onOpenChange={setMobileNav}>
-        <SheetContent title="Navigation" side="left" className="w-72">
+        <SheetContent title="Navigation" side="left" className="w-[min(18rem,85vw)] pb-safe">
           <div className="flex h-14 items-center border-b px-4"><Logo /></div>
           <SidebarNav collapsed={false} onNavigate={() => setMobileNav(false)} />
-          <div className="border-t p-2"><NavLink to="/settings" className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium hover:bg-secondary"><Settings className="size-4" />Settings</NavLink></div>
+          <div className="border-t p-2"><NavLink to="/settings" className="flex min-h-11 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium hover:bg-secondary"><Settings className="size-4" />Settings</NavLink></div>
         </SheetContent>
       </Dialog>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <DemoBanner />
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/85 px-3 backdrop-blur sm:px-5">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu /></Button>
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-3 sm:px-5">
+          <span className="flex size-11 shrink-0 items-center justify-center lg:hidden [&>a]:size-11 [&>a]:justify-center"><Logo collapsed /></span>
           <button onClick={() => setPalette(true)}
-            className="flex h-9 w-full max-w-md items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground shadow-sm hover:bg-secondary">
-            <Search className="size-4" aria-hidden /><span className="flex-1 truncate text-left">Search or jump to…</span>
+            className="flex h-9 w-full max-w-md items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground hover:bg-secondary">
+            <Search className="size-4" aria-hidden /><span className="flex-1 truncate text-left">Search<span className="hidden sm:inline"> or jump to…</span></span>
             <kbd className="hidden rounded border px-1.5 text-[10px] sm:inline">Ctrl K</kbd>
           </button>
           <div className="ml-auto flex items-center gap-1">
@@ -289,9 +312,10 @@ export function AppShell() {
             <UserMenu />
           </div>
         </header>
-        <main id="main" className="mx-auto w-full max-w-[1600px] flex-1 animate-fade-in p-3 sm:p-5 lg:p-6">
+        <main id="main" className="mx-auto w-full max-w-[1400px] flex-1 px-4 pb-24 pt-4 sm:p-5 sm:pb-24 lg:p-8">
           <Outlet />
         </main>
+        <BottomNav onMore={() => setMobileNav(true)} />
       </div>
     </div>
   );

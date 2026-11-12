@@ -86,12 +86,14 @@ export function CalendarPage() {
             {eachDayOfInterval({ start: from, end: to }).map((d) => {
               const evs = on(d);
               return (
-                <div key={d.toISOString()} className={cn('group min-h-[6.5rem] border-b border-r p-1.5 [&:nth-child(7n)]:border-r-0', !isSameMonth(d, cursor) && 'bg-muted/30')}>
-                  <div className="mb-1 flex items-center justify-between">
-                    <button onClick={() => { setCursor(d); setMode('day'); }} className={cn('flex size-6 items-center justify-center rounded-full text-xs', isToday(d) ? 'bg-primary font-semibold text-primary-foreground' : 'text-muted-foreground hover:bg-secondary', !isSameMonth(d, cursor) && 'opacity-50')}>{format(d, 'd')}</button>
-                    <button onClick={() => quick('task', { dueDate: format(d, 'yyyy-MM-dd') })} className="rounded p-0.5 text-muted-foreground opacity-0 hover:bg-secondary focus:opacity-100 group-hover:opacity-100" aria-label={`Add task on ${format(d, 'd MMMM')}`}><Plus className="size-3" /></button>
+                <div key={d.toISOString()} className={cn('group min-h-[4.5rem] border-b border-r p-0.5 sm:min-h-[6.5rem] sm:p-1.5 [&:nth-child(7n)]:border-r-0', !isSameMonth(d, cursor) && 'bg-muted/30')}>
+                  <div className="mb-1 flex items-center justify-center sm:justify-between">
+                    <button aria-label={format(d, 'd MMMM') + (evs.length ? `, ${evs.length} items` : '')} onClick={() => { setCursor(d); setMode('day'); }} className={cn('flex size-6 items-center justify-center rounded-full text-xs', isToday(d) ? 'bg-primary font-semibold text-primary-foreground' : 'text-muted-foreground hover:bg-secondary', !isSameMonth(d, cursor) && 'opacity-50')}>{format(d, 'd')}</button>
+                    <button onClick={() => quick('task', { dueDate: format(d, 'yyyy-MM-dd') })} className="hidden rounded p-0.5 text-muted-foreground opacity-0 hover:bg-secondary focus:opacity-100 group-hover:opacity-100 sm:inline-flex" aria-label={`Add task on ${format(d, 'd MMMM')}`}><Plus className="size-3" /></button>
                   </div>
-                  <div className="space-y-0.5">
+                  {/* Phones: dots only; tapping the day opens its agenda. */}
+                  {evs.length > 0 && <div className="flex justify-center gap-0.5 sm:hidden" aria-hidden>{evs.slice(0, 3).map((e) => <span key={e.id} className="size-1.5 rounded-full bg-accent" />)}</div>}
+                  <div className="hidden space-y-0.5 sm:block">
                     {evs.slice(0, 3).map((e) => <EventChip key={e.id} e={e} compact />)}
                     {evs.length > 3 && <button onClick={() => { setCursor(d); setMode('day'); }} className="px-1 text-[11px] text-muted-foreground hover:underline">+{evs.length - 3} more</button>}
                   </div>

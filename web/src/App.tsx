@@ -1,21 +1,34 @@
 import * as React from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { ApiError, setUnauthorizedHandler } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { useMe } from '@/hooks/data';
-import { AppShell, CommandPalette } from '@/components/layout/app-shell';
-import { ConfirmHost } from '@/components/ui/overlay';
-import { QuickCreateHost } from '@/features/forms';
 import { LandingPage } from '@/features/public/landing';
-import { LoginPage, SignupPage } from '@/features/public/auth';
-import { PublicLeadForm } from '@/features/public/lead-form';
 
 /** Code-split a named page export. */
 const lazy = <T,>(load: () => Promise<T>, name: keyof T) =>
   React.lazy(() => load().then((m) => ({ default: m[name] as unknown as React.ComponentType })));
 
+// The signed-in shell (navigation, search, record forms) stays out of the
+// landing and sign-in bundle.
+const Shell = lazy(() => import('@/components/layout/shell'), 'Shell');
+// Start downloading the signed-in shell and the page being opened straight away,
+// in parallel with the session check, instead of one after the other.
+const PRELOAD: Record<string, () => Promise<unknown>> = {
+  dashboard: () => import('@/features/dashboard/dashboard'), deals: () => import('@/features/deals/deals'),
+  contacts: () => import('@/features/contacts/contacts'), tasks: () => import('@/features/work/tasks'), leads: () => import('@/features/leads/leads'),
+};
+const first = window.location.pathname.split('/')[1] ?? '';
+if (!['', 'login', 'signup', 'f', 'quotes'].includes(first)) {
+  void import('@/components/layout/shell');
+  void PRELOAD[first]?.();
+}
+
+const LoginPage = lazy(() => import('@/features/public/auth'), 'LoginPage');
+const SignupPage = lazy(() => import('@/features/public/auth'), 'SignupPage');
+const PublicLeadForm = lazy(() => import('@/features/public/lead-form'), 'PublicLeadForm');
 const Dashboard = lazy(() => import('@/features/dashboard/dashboard'), 'DashboardPage');
 const Contacts = lazy(() => import('@/features/contacts/contacts'), 'ContactsPage');
 const ContactDetail = lazy(() => import('@/features/contacts/contact-detail'), 'ContactDetailPage');
@@ -56,19 +69,16 @@ function RequireAuth() {
   }
   if (!data) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   return (
-    <>
-      <AppShell />
-      <CommandPalette />
-      <QuickCreateHost />
-    </>
+<Shell />
   );
 }
 
 function NotFound() {
   return (
     <div className="py-24 text-center">
-      <p className="text-5xl font-bold text-muted-foreground">404</p>
+      <p className="font-display text-6xl text-muted-foreground">404</p>
       <p className="mt-2 font-medium">This page doesn't exist.</p>
+      <Button asChild variant="outline" className="mt-5"><Link to="/dashboard">Back to the dashboard</Link></Button>
     </div>
   );
 }
@@ -114,7 +124,6 @@ export function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-      <ConfirmHost />
     </React.Suspense>
   );
 }

@@ -37,7 +37,7 @@ function SentEmails() {
   const emails = data?.data ?? [];
   const current = selected ?? emails[0] ?? null;
   return (
-    <Card className="grid min-h-[60vh] overflow-hidden md:grid-cols-[22rem_1fr]">
+    <Card className="grid min-h-[60dvh] grid-cols-1 overflow-hidden md:grid-cols-[22rem_1fr]">
       <div className="border-b md:border-b-0 md:border-r">
         <div className="relative border-b p-2">
           <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />

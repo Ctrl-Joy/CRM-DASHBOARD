@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
 import { requireAuth } from './lib/auth';
@@ -35,11 +36,11 @@ export function createApp() {
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https:'],
-        mediaSrc: ["'self'", 'https://d8j0ntlcm91z4.cloudfront.net'], // landing hero video
         connectSrc: ["'self'"],
       },
     },
   }));
+  app.use(compression());
   app.use(cookieParser());
   app.use(express.json({ limit: '5mb' }));
 
@@ -83,6 +84,8 @@ export function createApp() {
   // In production the API also serves the built React app.
   const dist = path.resolve(process.cwd(), '../web/dist');
   if (process.env.NODE_ENV === 'production' && fs.existsSync(dist)) {
+    // Hashed build assets never change; everything else is revalidated hourly.
+    app.use('/assets', express.static(path.join(dist, 'assets'), { index: false, immutable: true, maxAge: '1y' }));
     app.use(express.static(dist, { index: false, maxAge: '1h' }));
     app.get('*', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
   }

@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { App } from './App';
-import { TooltipProvider } from '@/components/ui/overlay';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { ApiError } from '@/lib/api';
 import { applyTheme, useUi } from '@/stores/ui';
 import './index.css';
@@ -26,7 +26,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <TooltipProvider>
           <App />
-          <Toaster richColors closeButton position="bottom-right" />
+          {/* On phones the bottom edge belongs to the tab bar. */}
+          <Toaster closeButton position={matchMedia('(max-width: 1023px)').matches ? 'top-center' : 'bottom-right'} />
         </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>

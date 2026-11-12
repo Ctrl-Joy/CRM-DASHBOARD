@@ -127,7 +127,16 @@ class HeuristicAIProvider implements AIProvider {
         });
       }
     }
-    return out.sort((a, b) => b.priority - a.priority).slice(0, limit);
+    // Rank by priority, but each further item of the same kind counts for a little
+    // less, so a backlog of one kind (say, breached tickets) can't hide a closing
+    // deal or a hot lead.
+    const seen: Record<string, number> = {};
+    return out
+      .sort((a, b) => b.priority - a.priority)
+      .map((a) => ({ a, rank: a.priority - 6 * (seen[a.kind] = (seen[a.kind] ?? -1) + 1) }))
+      .sort((x, y) => y.rank - x.rank)
+      .slice(0, limit)
+      .map((x) => x.a);
   }
 
   async summarizeTimeline(input: TimelineInput) {

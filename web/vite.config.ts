@@ -13,7 +13,13 @@ export default defineConfig({
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
-        manualChunks: { charts: ['recharts'], dnd: ['@dnd-kit/core', '@dnd-kit/sortable'], vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'] },
+        // Only the always-needed libraries get a named chunk. Charts and drag-and-drop
+        // are split automatically, so they load with the screens that use them.
+        manualChunks(id) {
+          if (/node_modules[\/](react|react-dom|react-router|react-router-dom|@remix-run|scheduler|@tanstack)[\/]/.test(id)) return 'vendor';
+          // One file for icons instead of a request per icon.
+          if (/node_modules[\/]lucide-react[\/]/.test(id)) return 'icons';
+        },
       },
     },
   },
