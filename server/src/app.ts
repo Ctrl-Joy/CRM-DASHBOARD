@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
+import { emailStatus } from './services/email';
 import path from 'path';
 import fs from 'fs';
 import { requireAuth } from './lib/auth';
@@ -45,7 +46,7 @@ export function createApp() {
   app.use(express.json({ limit: '5mb' }));
 
   const api = Router();
-  api.get('/health', (_req, res) => { res.json({ ok: true }); });
+  api.get('/health', async (_req, res) => { res.json({ ok: true, email: await emailStatus() }); });
   api.use('/auth', authRouter);
   api.use('/public', publicLeadsRouter);
 

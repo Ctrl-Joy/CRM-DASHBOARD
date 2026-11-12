@@ -80,3 +80,28 @@ function fromEnv(): EmailProvider {
 
 export let emailProvider: EmailProvider = fromEnv();
 export const setEmailProvider = (p: EmailProvider) => { emailProvider = p; };
+
+// ---------- status (shown by /api/health, so a deploy can be checked without sending mail) ----------
+let cached: { at: number; status: string } | null = null;
+
+/** "off", "ready", or a short reason delivery would fail. Asks Brevo at most every 10 minutes. */
+export async function emailStatus(): Promise<string> {
+  const { BREVO_API_KEY, EMAIL_FROM } = process.env;
+  if (!BREVO_API_KEY && !EMAIL_FROM) return 'off';
+  if (!BREVO_API_KEY) return 'BREVO_API_KEY is not set';
+  if (!EMAIL_FROM) return 'EMAIL_FROM is not set';
+  if (cached && Date.now() - cached.at < 600_000) return cached.status;
+  let status: string;
+  try {
+    const res = await fetch('https://api.brevo.com/v3/senders', { headers: { 'api-key': BREVO_API_KEY, accept: 'application/json' }, signal: AbortSignal.timeout(10_000) });
+    if (res.status === 401) status = BREVO_API_KEY.startsWith('xsmtpsib-') ? 'BREVO_API_KEY is an SMTP key; an API key (xkeysib-) is needed' : 'Brevo rejected BREVO_API_KEY';
+    else if (!res.ok) status = `Brevo answered ${res.status}`;
+    else {
+      const { senders = [] } = (await res.json()) as { senders?: { email: string; active: boolean }[] };
+      const sender = senders.find((x) => x.email.toLowerCase() === EMAIL_FROM.trim().toLowerCase());
+      status = !sender ? 'EMAIL_FROM is not a sender in this Brevo account' : sender.active ? 'ready' : 'EMAIL_FROM is not verified in Brevo yet';
+    }
+  } catch { status = 'Brevo could not be reached'; }
+  cached = { at: Date.now(), status };
+  return status;
+}
