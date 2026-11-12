@@ -268,7 +268,7 @@ function SaveDialog({ open, onOpenChange, config }: { open: boolean; onOpenChang
 function Saved() {
   const { data, isLoading } = useQuery({ queryKey: ['reports', 'saved'], queryFn: () => api.get<{ data: SavedReport[] }>('/reports/saved').then((r) => r.data) });
   const [open, setOpen] = React.useState<SavedReport | null>(null);
-  const send = useAction((id: string) => api.post<{ sent: number; provider: string }>(`/reports/saved/${id}/send`), { success: (r) => `Sent to ${r.sent} recipient${r.sent === 1 ? '' : 's'}${r.provider === 'console' ? ' (dev: email stubbed)' : ''}` });
+  const send = useAction((id: string) => api.post<{ sent: number; delivered: boolean }>(`/reports/saved/${id}/send`), { success: (r) => (r.delivered ? `Sent to ${r.sent} recipient${r.sent === 1 ? '' : 's'}` : 'Not delivered: email sending is off in this workspace') });
   const remove = useAction((id: string) => api.del(`/reports/saved/${id}`), { success: 'Report deleted', invalidate: [['reports', 'saved']] });
   const run = useAction((c: ReportConfig) => api.post<{ data: { key: string; value: number }[]; groupLabel: string }>('/reports/run', c));
   if (isLoading) return <Skeleton className="h-40" />;

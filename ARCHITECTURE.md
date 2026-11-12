@@ -88,8 +88,8 @@ Everything below runs end to end against the real API. The automated tests cover
 
 | Area | Status |
 |---|---|
-| Email delivery | `ConsoleEmailProvider` logs only. Implement `EmailProvider` (SMTP, SES, Resend…) to deliver mail. Inbound email and threading from replies are not implemented. |
-| Scheduled report emails | The scheduler runs and records `lastSentAt`, but sends through the stubbed provider. |
+| Email delivery | Delivered through Brevo when `BREVO_API_KEY` and `EMAIL_FROM` are set; otherwise `ConsoleEmailProvider` logs only. The demo workspace never sends real mail. Inbound email and threading from replies are not implemented. |
+| Scheduled report emails | The scheduler runs and records `lastSentAt`; delivery depends on the email settings above. |
 | AI | Heuristic provider only. No LLM is called. |
 | PDF | The browser's print-to-PDF, not server-generated. |
 | Background jobs | In-process intervals (reminders, SLA warnings, reports). Use a queue or cron worker when running more than one instance. |

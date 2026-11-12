@@ -76,6 +76,10 @@ Once the demo organization exists, visitors don't need these passwords. The home
 | `UPLOAD_DIR` | `server/uploads` | Where attachments are stored |
 | `TRUST_PROXY` | `1` on Railway and Render, else `loopback` | Proxy hops in front of the app (Express `trust proxy`), so rate limits see each visitor's real IP |
 | `DEMO_LOGIN` | `true` | Set to `false` to hide the live-demo buttons |
+| `BREVO_API_KEY` | unset | Brevo API key. With `EMAIL_FROM`, emails are really delivered; without them, sends are only logged |
+| `EMAIL_FROM` | unset | The sender address verified in Brevo. Replies go to the user who sent the email |
+| `EMAIL_FROM_NAME` | `Nexora` | Sender name shown to recipients |
+| `EMAIL_DAILY_LIMIT` | 50 | Emails one workspace may send in 24 hours. The live demo never sends real mail |
 
 ## Deploy for free: Render + Neon
 

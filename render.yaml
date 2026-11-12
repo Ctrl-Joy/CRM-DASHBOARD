@@ -19,3 +19,8 @@ services:
         generateValue: true
       - key: SECURE_COOKIES
         value: "1"
+      # Optional: real email delivery through Brevo. Leave unset to only log sends.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

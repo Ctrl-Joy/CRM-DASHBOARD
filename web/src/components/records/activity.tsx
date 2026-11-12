@@ -151,8 +151,8 @@ export function EmailComposer({ open, onOpenChange, to, related, vars, invalidat
   const bodyRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => { if (open) { setForm({ to: to ?? '', subject: '', body: '', templateId: '' }); setPreview(false); setErrors({}); } }, [open, to]);
   const allVars = { ...vars, email: form.to, sender_name: me?.name, sender_email: me?.email };
-  const send = useAction(() => api.post<{ provider: string }>('/email/send', { ...form, ...related, templateId: form.templateId || null }), {
-    success: (r) => (r.provider === 'console' ? 'Email logged (dev mode: delivery is stubbed)' : 'Email sent'), invalidate, onSuccess: () => onOpenChange(false),
+  const send = useAction(() => api.post<{ provider: string; delivered: boolean }>('/email/send', { ...form, ...related, templateId: form.templateId || null }), {
+    success: (r) => (r.delivered ? 'Email sent' : 'Saved to the timeline, but not delivered: email sending is off in this workspace'), invalidate, onSuccess: () => onOpenChange(false),
   });
   const insertTag = (tag: string) => {
     const el = bodyRef.current;

@@ -127,7 +127,7 @@ async function runAction(action: Action, ctx: WorkflowContext): Promise<string> 
       const allVars = { ...v, email: to, sender_name: sender?.name ?? '', sender_email: sender?.email ?? '' };
       const subject = renderTemplate(template.subject, allVars);
       const body = renderTemplate(template.body, allVars);
-      await emailProvider.send({ from: sender?.email ?? 'no-reply@nimbus.local', to, subject, text: body });
+      await emailProvider.send({ from: sender?.email ?? 'no-reply@nimbus.local', fromName: sender?.name, to, subject, text: body, orgId: ctx.orgId });
       const ownerId = (ctx.entity[OWNER_FIELD[ctx.entityType]] as string | null) ?? ctx.actorId;
       if (ownerId) {
         await prisma.activity.create({

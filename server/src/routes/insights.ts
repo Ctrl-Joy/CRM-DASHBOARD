@@ -402,13 +402,14 @@ export async function deliverReport(reportId: string) {
   const authUser: AuthUser = { id: owner.id, orgId: owner.orgId, name: owner.name, email: owner.email, role, teamId: owner.teamId, permissions };
   const result = await runReport(authUser, json(report.config, {} as ReportConfig));
   const text = [`${report.name}`, '', ...result.data.map((d) => `${d.key}: ${Math.round(d.value * 100) / 100}`)].join('\n');
-  for (const to of recipients) await emailProvider.send({ from: owner.email, to, subject: `Report: ${report.name}`, text });
+  let delivered = false;
+  for (const to of recipients) delivered = (await emailProvider.send({ from: owner.email, fromName: owner.name, to, subject: `Report: ${report.name}`, text, orgId: owner.orgId })).delivered;
   await prisma.report.update({ where: { id: report.id }, data: { lastSentAt: new Date() } });
-  return recipients.length;
+  return { sent: recipients.length, delivered };
 }
 reportsRouter.post('/saved/:id/send', handler(async (req) => {
   const r = await ownReport(req);
-  const sent = await deliverReport(r.id);
+  const { sent, delivered } = await deliverReport(r.id);
   await audit(req, 'send_report', 'report', r.id, { recipients: sent });
-  return { sent, provider: emailProvider.name };
+  return { sent, delivered, provider: emailProvider.name };
 }));

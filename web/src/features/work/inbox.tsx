@@ -16,7 +16,7 @@ export function InboxPage() {
   const [compose, setCompose] = React.useState(false);
   return (
     <>
-      <PageHeader title="Inbox" description="Emails sent from Nexora, threaded onto contacts and deals. Delivery runs through a pluggable provider."
+      <PageHeader title="Inbox" description="Emails sent from Nexora, threaded onto contacts and deals."
         actions={<Button onClick={() => setCompose(true)}><Mail />Compose</Button>} />
       <Tabs defaultValue="sent">
         <TabsList><TabsTrigger value="sent"><Inbox />Sent</TabsTrigger><TabsTrigger value="templates"><FileText />Templates</TabsTrigger></TabsList>

@@ -151,7 +151,7 @@ emailRouter.post('/send', handler(async (req, res) => {
   };
   const subject = renderTemplate(input.subject, vars);
   const body = renderTemplate(input.body, vars);
-  const sent = await emailProvider.send({ from: sender.email, replyTo: sender.email, to: input.to, subject, text: body });
+  const sent = await emailProvider.send({ from: sender.email, fromName: sender.name, replyTo: sender.email, to: input.to, subject, text: body, orgId: user.orgId });
   const activity = await prisma.activity.create({
     data: {
       orgId: user.orgId, type: 'email', subject, body, emailTo: input.to, ownerId: user.id, completed: true, completedAt: new Date(),
@@ -161,5 +161,5 @@ emailRouter.post('/send', handler(async (req, res) => {
   await touch(activity);
   await audit(req, 'send_email', 'activity', activity.id, { to: input.to, provider: emailProvider.name, messageId: sent.id });
   res.status(201);
-  return { id: activity.id, provider: emailProvider.name, messageId: sent.id };
+  return { id: activity.id, provider: emailProvider.name, delivered: sent.delivered, messageId: sent.id };
 }));
