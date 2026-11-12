@@ -94,8 +94,15 @@ export async function emailStatus(): Promise<string> {
   let status: string;
   try {
     const res = await fetch('https://api.brevo.com/v3/senders', { headers: { 'api-key': BREVO_API_KEY, accept: 'application/json' }, signal: AbortSignal.timeout(10_000) });
-    if (res.status === 401) status = BREVO_API_KEY.startsWith('xsmtpsib-') ? 'BREVO_API_KEY is an SMTP key; an API key (xkeysib-) is needed' : 'Brevo rejected BREVO_API_KEY';
-    else if (!res.ok) status = `Brevo answered ${res.status}`;
+    if (res.status === 401) {
+      const detail = (await res.clone().json().catch(() => null)) as { message?: string } | null;
+      status = BREVO_API_KEY.startsWith('xsmtpsib-') ? 'BREVO_API_KEY is an SMTP key; an API key (xkeysib-) is needed'
+        : `Brevo rejected BREVO_API_KEY${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
+    }
+    else if (!res.ok) {
+      const detail = (await res.json().catch(() => null)) as { message?: string } | null;
+      status = `Brevo answered ${res.status}${detail?.message ? `: ${detail.message.slice(0, 200)}` : ''}`;
+    }
     else {
       const { senders = [] } = (await res.json()) as { senders?: { email: string; active: boolean }[] };
       const sender = senders.find((x) => x.email.toLowerCase() === EMAIL_FROM.trim().toLowerCase());
