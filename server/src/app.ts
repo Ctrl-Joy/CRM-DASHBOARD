@@ -88,7 +88,17 @@ export function createApp() {
     // Hashed build assets never change; everything else is revalidated hourly.
     app.use('/assets', express.static(path.join(dist, 'assets'), { index: false, immutable: true, maxAge: '1y' }));
     app.use(express.static(dist, { index: false, maxAge: '1h' }));
-    app.get('*', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
+    // index.html names the home page as its canonical URL, but every page is served from it,
+    // so the canonical and og:url links are pointed at the page that was asked for.
+    const shell = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
+    const attr = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    app.get('*', (req, res) => {
+      const page = req.path.length > 1 ? req.path.replace(/\/+$/, '') : '/';
+      res.type('html').send(shell.replace(
+        /(<link rel="canonical" href="|<meta property="og:url" content=")(https?:\/\/[^/"]+)\/[^"]*"/g,
+        (_m, tag: string, origin: string) => `${tag}${origin}${attr(page)}"`,
+      ));
+    });
   }
 
   app.use(errorHandler);

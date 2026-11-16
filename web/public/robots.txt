@@ -1,2 +1,23 @@
+# Nexora CRM: the landing page, sign in and sign up are public. The workspace pages need an
+# account, and the API is not a set of pages, so both are kept out of search.
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /contacts
+Disallow: /companies
+Disallow: /leads
+Disallow: /deals
+Disallow: /products
+Disallow: /tasks
+Disallow: /calendar
+Disallow: /inbox
+Disallow: /tickets
+Disallow: /campaigns
+Disallow: /reports
+Disallow: /automations
+Disallow: /settings
+Disallow: /quotes/
+Disallow: /reset-password
+
+Sitemap: https://nexora-crm-zdk0.onrender.com/sitemap.xml
